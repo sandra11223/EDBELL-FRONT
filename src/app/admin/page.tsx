@@ -1,0 +1,3820 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  Mail, 
+  Phone, 
+  User, 
+  Calendar, 
+  MessageCircle, 
+  Filter, 
+  Eye, 
+  LogOut, 
+  Shield,
+  Home,
+  Info,
+  BookOpen,
+  GraduationCap,
+  Briefcase,
+  FileText,
+  Users,
+  Settings,
+  BarChart3,
+  Globe,
+  Menu,
+  X,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  XCircle,
+  Award,
+  Tag,
+  CheckCircle
+} from 'lucide-react';
+
+interface Contact {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  serviceInterest: string;
+  status: 'new' | 'in-progress' | 'resolved';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Course {
+  _id?: string;
+  name: string;
+  url: string;
+  description: string;
+  category: 'Undergraduate' | 'Postgraduate' | 'Specialized';
+  duration: string;
+  fees?: string;
+  eligibility?: string;
+  // Enhanced course details
+  curriculum?: string;
+  careerOpportunities?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface University {
+  _id?: string;
+  name: string;
+  url: string;
+  description: string;
+  accreditation: string;
+  established: string;
+  location?: string;
+  website?: string;
+  // Enhanced university details
+  universityType?: string;
+  campusSize?: string;
+  totalStudents?: string;
+  facultyCount?: string;
+  coursesOffered?: string;
+  specializations?: string;
+  facilities?: string;
+  admissionProcess?: string;
+  feeStructure?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface Blog {
+  _id?: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  category: string;
+  tags: string[];
+  readTime: string;
+  featured: boolean;
+  published: boolean;
+  publishDate: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface GalleryImage {
+  _id?: string;
+  title: string;
+  description: string;
+  category: 'events' | 'campus' | 'graduation' | 'activities' | 'achievements';
+  imageUrl: string;
+  imageAlt: string;
+  location?: string;
+  eventDate?: string;
+  uploadedBy: string;
+  tags: string[];
+  featured: boolean;
+  published: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export default function AdminDashboard() {
+  const router = useRouter();
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [activeSection, setActiveSection] = useState('contacts');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // CRUD states
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [showUniversityModal, setShowUniversityModal] = useState(false);
+  const [showBlogModal, setShowBlogModal] = useState(false);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [editingUniversity, setEditingUniversity] = useState<University | null>(null);
+  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  const [editingGalleryImage, setEditingGalleryImage] = useState<GalleryImage | null>(null);
+  const [courseForm, setCourseForm] = useState<Course>({
+    name: '',
+    url: '',
+    description: '',
+    category: 'Undergraduate',
+    duration: '',
+    fees: '',
+    eligibility: '',
+    curriculum: '',
+    careerOpportunities: ''
+  });
+  const [universityForm, setUniversityForm] = useState<University>({
+    name: '',
+    url: '',
+    description: '',
+    accreditation: '',
+    established: '',
+    location: '',
+    website: '',
+    universityType: '',
+    campusSize: '',
+    totalStudents: '',
+    facultyCount: '',
+    coursesOffered: '',
+    specializations: '',
+    facilities: '',
+    admissionProcess: '',
+    feeStructure: ''
+  });
+  const [blogForm, setBlogForm] = useState<Blog>({
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    author: '',
+    category: 'Education Trends',
+    tags: [],
+    readTime: '',
+    featured: false,
+    published: true,
+    publishDate: new Date().toISOString().split('T')[0]
+  });
+  const [galleryForm, setGalleryForm] = useState<GalleryImage>({
+    title: '',
+    description: '',
+    category: 'events',
+    imageUrl: '',
+    imageAlt: '',
+    location: '',
+    eventDate: new Date().toISOString().split('T')[0],
+    uploadedBy: 'Admin',
+    tags: [],
+    featured: false,
+    published: true
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
+  
+  // Analytics state
+  const [analyticsData, setAnalyticsData] = useState({
+    totalVisitors: 0,
+    contactInquiries: 0,
+    coursePageViews: 0,
+    newsletterSubscribers: 0,
+    visitorGrowth: '+0%',
+    courseViewsGrowth: '+0%',
+    subscriberGrowth: '+0%'
+  });
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [popularPages, setPopularPages] = useState<any[]>([]);
+  const [pageViewsData, setPageViewsData] = useState<any>({});
+
+  const navigationItems = [
+    { id: 'contacts', name: 'Contact Management', icon: <MessageCircle className="h-5 w-5" />, description: 'Manage inquiries and messages' },
+    { id: 'subscribers', name: 'Newsletter Subscribers', icon: <Mail className="h-5 w-5" />, description: 'Manage newsletter subscriptions' },
+    { id: 'blogs', name: 'Blog Management', icon: <FileText className="h-5 w-5" />, description: 'Create and manage blog posts' },
+    { id: 'gallery', name: 'Gallery Management', icon: <Award className="h-5 w-5" />, description: 'Manage photo gallery' },
+    { id: 'add-course', name: 'Add Course', icon: <BookOpen className="h-5 w-5" />, description: 'Create and manage courses' },
+    { id: 'add-university', name: 'Add University', icon: <GraduationCap className="h-5 w-5" />, description: 'Create and manage universities' },
+    { id: 'analytics', name: 'Analytics', icon: <BarChart3 className="h-5 w-5" />, description: 'Website statistics' },
+    { id: 'settings', name: 'Settings', icon: <Settings className="h-5 w-5" />, description: 'System configuration' }
+  ];
+
+  useEffect(() => {
+    // Check authentication status (client-side only)
+    if (typeof window !== 'undefined') {
+      const loggedIn = localStorage.getItem('isLoggedIn');
+      const email = localStorage.getItem('userEmail');
+      
+      if (loggedIn === 'true' && email) {
+        setIsAuthenticated(true);
+        setUserEmail(email);
+        if (activeSection === 'contacts') {
+          fetchContacts();
+        } else if (activeSection === 'subscribers') {
+          fetchAnalyticsData(); // This fetches subscriptions
+          fetchContacts(); // Also fetch contacts for cross-reference
+        } else if (activeSection === 'add-course') {
+          fetchCourses();
+        } else if (activeSection === 'add-university') {
+          fetchUniversities();
+        } else if (activeSection === 'blogs') {
+          fetchBlogs();
+        } else if (activeSection === 'gallery') {
+          fetchGalleryImages();
+        } else if (activeSection === 'analytics') {
+          fetchAnalyticsData();
+          fetchContacts(); // Also fetch contacts for the analytics
+        }
+        
+        // Always fetch analytics data for the dashboard
+        if (activeSection !== 'analytics') {
+          fetchAnalyticsData();
+        }
+      } else {
+        router.push('/login');
+      }
+    }
+  }, [router, selectedStatus, currentPage, activeSection]);
+
+  // Auto-refresh data every 30 seconds for real-time updates
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(() => {
+      if (activeSection === 'contacts' || activeSection === 'subscribers') {
+        fetchAnalyticsData(); // Refresh subscription data
+      }
+      if (activeSection === 'contacts') {
+        fetchContacts(); // Refresh contact data
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, activeSection]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    router.push('/login');
+  };
+
+  const fetchContacts = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '10',
+        status: selectedStatus
+      });
+      
+      const response = await fetch(`/api/contact?${params}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setContacts(data.contacts);
+        setTotalPages(data.pagination.pages);
+        
+        // Update analytics data with real contact count
+        setAnalyticsData(prev => ({
+          ...prev,
+          contactInquiries: data.pagination.total || data.contacts.length
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch analytics data
+  const fetchAnalyticsData = async () => {
+    try {
+      // Fetch newsletter subscriptions
+      const subscriptionsResponse = await fetch('/api/subscribe');
+      if (subscriptionsResponse.ok) {
+        const subscriptionsData = await subscriptionsResponse.json();
+        setSubscriptions(subscriptionsData.subscriptions || []);
+        
+        setAnalyticsData(prev => ({
+          ...prev,
+          newsletterSubscribers: subscriptionsData.pagination?.total || subscriptionsData.subscriptions?.length || 0,
+          subscriberGrowth: '+5% growth' // You can calculate this based on date comparison
+        }));
+      }
+      
+      // Fetch page views analytics
+      const analyticsResponse = await fetch('/api/analytics');
+      if (analyticsResponse.ok) {
+        const analyticsDataResponse = await analyticsResponse.json();
+        setPopularPages(analyticsDataResponse.popularPages || []);
+        setPageViewsData(analyticsDataResponse);
+        
+        // Calculate course page views from analytics
+        const courseViews = analyticsDataResponse.popularPages?.find(page => 
+          page.path === '/courses' || page.page.toLowerCase().includes('course')
+        )?.views || 0;
+        
+        setAnalyticsData(prev => ({
+          ...prev,
+          totalVisitors: analyticsDataResponse.totalViews || 0,
+          coursePageViews: courseViews,
+          visitorGrowth: '+12% from last month', // You can calculate this based on daily data
+          courseViewsGrowth: '+8% from last week'
+        }));
+      }
+      
+    } catch (error) {
+      console.error('Error fetching analytics data:', error);
+      
+      // Fallback to basic data if analytics fails
+      setAnalyticsData(prev => ({
+        ...prev,
+        totalVisitors: 0,
+        coursePageViews: 0,
+        visitorGrowth: 'No data',
+        courseViewsGrowth: 'No data'
+      }));
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'bg-blue-100 text-blue-800';
+      case 'in-progress':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'resolved':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // CRUD Functions for Courses
+  const fetchCourses = async () => {
+    try {
+      const response = await fetch('/api/courses');
+      const data = await response.json();
+      if (data.success) {
+        setCourses(data.courses);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
+  const createCourse = async () => {
+    try {
+      // Validate required fields on frontend
+      if (!courseForm.name.trim()) {
+        alert('❌ Course name is required');
+        return;
+      }
+      if (!courseForm.description.trim() || courseForm.description.length < 10) {
+        alert('❌ Description is required and must be at least 10 characters long');
+        return;
+      }
+      if (!courseForm.duration.trim()) {
+        alert('❌ Duration is required');
+        return;
+      }
+
+      const response = await fetch('/api/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(courseForm)
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setCourses([...courses, data.course]);
+        setShowCourseModal(false);
+        resetCourseForm();
+        alert(`✅ Course created successfully! ${data.pageCreated ? 'Page file also created.' : ''}\n\n🔄 The course is now visible on:\n• Home page (Popular Courses section)\n• Courses page\n• Course detail page: ${data.course.url}`);
+      } else {
+        alert(`❌ Error creating course: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error creating course:', error);
+      alert('❌ Error creating course. Please check your internet connection and try again.');
+    }
+  };
+
+  const updateCourse = async () => {
+    try {
+      // Validate required fields on frontend
+      if (!courseForm.name.trim()) {
+        alert('❌ Course name is required');
+        return;
+      }
+      if (!courseForm.description.trim() || courseForm.description.length < 10) {
+        alert('❌ Description is required and must be at least 10 characters long');
+        return;
+      }
+      if (!courseForm.duration.trim()) {
+        alert('❌ Duration is required');
+        return;
+      }
+
+      const response = await fetch('/api/courses', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...courseForm, _id: editingCourse?._id })
+      });
+      const data = await response.json();
+      
+      if (data.success && editingCourse) {
+        setCourses(courses.map(c => c._id === editingCourse._id ? { ...courseForm, _id: editingCourse._id } : c));
+        setShowCourseModal(false);
+        setEditingCourse(null);
+        resetCourseForm();
+        alert(`✅ Course updated successfully! ${data.pageUpdated ? 'Page file also updated.' : ''}\n\n🔄 Changes are now visible on:\n• Home page\n• Courses page\n• Course detail page: ${courseForm.url}`);
+      } else {
+        alert(`❌ Error updating course: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating course:', error);
+      alert('❌ Error updating course. Please check your internet connection and try again.');
+    }
+  };
+
+  const deleteCourse = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this course? This will also delete the page file.')) return;
+    
+    try {
+      const response = await fetch(`/api/courses?id=${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCourses(courses.filter(c => c._id !== id));
+        alert(`Course deleted successfully! ${data.pageDeleted ? 'Page file also deleted.' : ''}`);
+      }
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      alert('Error deleting course. Please try again.');
+    }
+  };
+
+  const resetCourseForm = () => {
+    setCourseForm({
+      name: '',
+      url: '',
+      description: '',
+      category: 'Undergraduate',
+      duration: '',
+      fees: '',
+      eligibility: '',
+      curriculum: '',
+      careerOpportunities: ''
+    });
+  };
+
+  // CRUD Functions for Universities
+  const fetchUniversities = async () => {
+    try {
+      const response = await fetch('/api/universities');
+      const data = await response.json();
+      if (data.success) {
+        setUniversities(data.universities);
+      }
+    } catch (error) {
+      console.error('Error fetching universities:', error);
+    }
+  };
+
+  const createUniversity = async () => {
+    try {
+      // Validate required fields on frontend
+      if (!universityForm.name.trim()) {
+        alert('❌ University name is required');
+        return;
+      }
+      if (!universityForm.description.trim() || universityForm.description.length < 10) {
+        alert('❌ Description is required and must be at least 10 characters long');
+        return;
+      }
+      if (!universityForm.accreditation.trim()) {
+        alert('❌ Accreditation is required');
+        return;
+      }
+      if (!universityForm.established.trim()) {
+        alert('❌ Established year is required');
+        return;
+      }
+
+      const response = await fetch('/api/universities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(universityForm)
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setUniversities([...universities, data.university]);
+        setShowUniversityModal(false);
+        resetUniversityForm();
+        alert(`✅ University created successfully! ${data.pageCreated ? 'Page file also created.' : ''}\n\n🔄 The university is now visible on:\n• Universities page\n• University detail page: ${universityForm.url}`);
+      } else {
+        alert(`❌ Error creating university: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error creating university:', error);
+      alert('❌ Error creating university. Please check your internet connection and try again.');
+    }
+  };
+
+  const updateUniversity = async () => {
+    try {
+      // Validate required fields on frontend
+      if (!universityForm.name.trim()) {
+        alert('❌ University name is required');
+        return;
+      }
+      if (!universityForm.description.trim() || universityForm.description.length < 10) {
+        alert('❌ Description is required and must be at least 10 characters long');
+        return;
+      }
+      if (!universityForm.accreditation.trim()) {
+        alert('❌ Accreditation is required');
+        return;
+      }
+      if (!universityForm.established.trim()) {
+        alert('❌ Established year is required');
+        return;
+      }
+
+      const response = await fetch('/api/universities', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...universityForm, _id: editingUniversity?._id })
+      });
+      const data = await response.json();
+      
+      if (data.success && editingUniversity) {
+        setUniversities(universities.map(u => u._id === editingUniversity._id ? { ...universityForm, _id: editingUniversity._id } : u));
+        setShowUniversityModal(false);
+        setEditingUniversity(null);
+        resetUniversityForm();
+        alert(`✅ University updated successfully! ${data.pageUpdated ? 'Page file also updated.' : ''}\n\n🔄 Changes are now visible on:\n• Universities page\n• University detail page: ${universityForm.url}`);
+      } else {
+        alert(`❌ Error updating university: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating university:', error);
+      alert('❌ Error updating university. Please check your internet connection and try again.');
+    }
+  };
+
+  const deleteUniversity = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this university? This will also delete the page file.')) return;
+    
+    try {
+      const response = await fetch(`/api/universities?id=${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUniversities(universities.filter(u => u._id !== id));
+        alert(`University deleted successfully! ${data.pageDeleted ? 'Page file also deleted.' : ''}`);
+      }
+    } catch (error) {
+      console.error('Error deleting university:', error);
+      alert('Error deleting university. Please try again.');
+    }
+  };
+
+  const resetUniversityForm = () => {
+    setUniversityForm({
+      name: '',
+      url: '',
+      description: '',
+      accreditation: '',
+      established: '',
+      location: '',
+      website: '',
+      universityType: '',
+      campusSize: '',
+      totalStudents: '',
+      facultyCount: '',
+      coursesOffered: '',
+      specializations: '',
+      facilities: '',
+      admissionProcess: '',
+      feeStructure: ''
+    });
+  };
+
+  // CRUD Functions for Blogs
+  const fetchBlogs = async () => {
+    try {
+      const response = await fetch('/api/blogs');
+      const data = await response.json();
+      if (data.success) {
+        setBlogs(data.blogs);
+      }
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    }
+  };
+
+  const createBlog = async () => {
+    try {
+      // Validate required fields on frontend
+      if (!blogForm.title.trim()) {
+        alert('❌ Blog title is required');
+        return;
+      }
+      if (!blogForm.excerpt.trim() || blogForm.excerpt.length < 20) {
+        alert('❌ Excerpt is required and must be at least 20 characters long');
+        return;
+      }
+      if (!blogForm.content.trim() || blogForm.content.length < 100) {
+        alert('❌ Content is required and must be at least 100 characters long');
+        return;
+      }
+      if (!blogForm.author.trim()) {
+        alert('❌ Author name is required');
+        return;
+      }
+      if (!blogForm.readTime.trim()) {
+        alert('❌ Read time is required');
+        return;
+      }
+
+      const response = await fetch('/api/blogs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(blogForm)
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setBlogs([...blogs, data.blog]);
+        setShowBlogModal(false);
+        resetBlogForm();
+        alert(`✅ Blog post created successfully!\n\n🔄 The blog post is now ${blogForm.published ? 'published and visible' : 'saved as draft'} on the blog page.`);
+      } else {
+        alert(`❌ Error creating blog: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error creating blog:', error);
+      alert('❌ Error creating blog. Please check your internet connection and try again.');
+    }
+  };
+
+  const updateBlog = async () => {
+    try {
+      // Validate required fields on frontend
+      if (!blogForm.title.trim()) {
+        alert('❌ Blog title is required');
+        return;
+      }
+      if (!blogForm.excerpt.trim() || blogForm.excerpt.length < 20) {
+        alert('❌ Excerpt is required and must be at least 20 characters long');
+        return;
+      }
+      if (!blogForm.content.trim() || blogForm.content.length < 100) {
+        alert('❌ Content is required and must be at least 100 characters long');
+        return;
+      }
+      if (!blogForm.author.trim()) {
+        alert('❌ Author name is required');
+        return;
+      }
+      if (!blogForm.readTime.trim()) {
+        alert('❌ Read time is required');
+        return;
+      }
+
+      const response = await fetch('/api/blogs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...blogForm, _id: editingBlog?._id })
+      });
+      const data = await response.json();
+      
+      if (data.success && editingBlog) {
+        setBlogs(blogs.map(b => b._id === editingBlog._id ? { ...blogForm, _id: editingBlog._id } : b));
+        setShowBlogModal(false);
+        setEditingBlog(null);
+        resetBlogForm();
+        alert(`✅ Blog post updated successfully!\n\n🔄 Changes are now ${blogForm.published ? 'published and visible' : 'saved as draft'} on the blog page.`);
+      } else {
+        alert(`❌ Error updating blog: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      alert('❌ Error updating blog. Please check your internet connection and try again.');
+    }
+  };
+
+  const deleteBlog = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) return;
+    
+    try {
+      const response = await fetch(`/api/blogs?id=${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setBlogs(blogs.filter(b => b._id !== id));
+        alert('Blog post deleted successfully!');
+      }
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      alert('Error deleting blog. Please try again.');
+    }
+  };
+
+  const resetBlogForm = () => {
+    setBlogForm({
+      title: '',
+      slug: '',
+      excerpt: '',
+      content: '',
+      author: '',
+      category: 'Education Trends',
+      tags: [],
+      readTime: '',
+      featured: false,
+      published: true,
+      publishDate: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  const openBlogModal = (blog?: Blog) => {
+    if (blog) {
+      setEditingBlog(blog);
+      setBlogForm({
+        ...blog,
+        publishDate: blog.publishDate.split('T')[0] // Convert to date input format
+      });
+    } else {
+      setEditingBlog(null);
+      resetBlogForm();
+    }
+    setShowBlogModal(true);
+  };
+
+  // CRUD Functions for Gallery
+  const fetchGalleryImages = async () => {
+    try {
+      const response = await fetch('/api/gallery');
+      const data = await response.json();
+      if (data.success) {
+        setGalleryImages(data.images);
+      }
+    } catch (error) {
+      console.error('Error fetching gallery images:', error);
+    }
+  };
+
+  const createGalleryImage = async () => {
+    try {
+      if (!selectedFile) {
+        alert('❌ Please select an image file');
+        return;
+      }
+
+      // Validate required fields
+      if (!galleryForm.title.trim()) {
+        alert('❌ Image title is required');
+        return;
+      }
+      if (!galleryForm.description.trim() || galleryForm.description.length < 10) {
+        alert('❌ Description is required and must be at least 10 characters long');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('title', galleryForm.title);
+      formData.append('description', galleryForm.description);
+      formData.append('category', galleryForm.category);
+      formData.append('location', galleryForm.location || '');
+      formData.append('eventDate', galleryForm.eventDate || '');
+      formData.append('tags', galleryForm.tags.join(','));
+      formData.append('featured', galleryForm.featured.toString());
+      formData.append('published', galleryForm.published.toString());
+      formData.append('uploadedBy', galleryForm.uploadedBy);
+
+      const response = await fetch('/api/gallery', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setGalleryImages([...galleryImages, data.image]);
+        setShowGalleryModal(false);
+        resetGalleryForm();
+        setSelectedFile(null);
+        alert(`✅ Image uploaded successfully!\n\n🔄 The image is now ${galleryForm.published ? 'published and visible' : 'saved as draft'} in the gallery.`);
+      } else {
+        alert(`❌ Error uploading image: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('❌ Error uploading image. Please check your internet connection and try again.');
+    }
+  };
+
+  const updateGalleryImage = async () => {
+    try {
+      if (!galleryForm.title.trim()) {
+        alert('❌ Image title is required');
+        return;
+      }
+      if (!galleryForm.description.trim() || galleryForm.description.length < 10) {
+        alert('❌ Description is required and must be at least 10 characters long');
+        return;
+      }
+
+      const response = await fetch('/api/gallery', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...galleryForm, _id: editingGalleryImage?._id })
+      });
+      const data = await response.json();
+      
+      if (data.success && editingGalleryImage) {
+        setGalleryImages(galleryImages.map(img => img._id === editingGalleryImage._id ? { ...galleryForm, _id: editingGalleryImage._id } : img));
+        setShowGalleryModal(false);
+        setEditingGalleryImage(null);
+        resetGalleryForm();
+        alert(`✅ Image updated successfully!\n\n🔄 Changes are now ${galleryForm.published ? 'published and visible' : 'saved as draft'} in the gallery.`);
+      } else {
+        alert(`❌ Error updating image: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating image:', error);
+      alert('❌ Error updating image. Please check your internet connection and try again.');
+    }
+  };
+
+  const deleteGalleryImage = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this image? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/gallery?id=${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setGalleryImages(galleryImages.filter(img => img._id !== id));
+        alert('Image deleted successfully!');
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      alert('Error deleting image. Please try again.');
+    }
+  };
+
+  const resetGalleryForm = () => {
+    setGalleryForm({
+      title: '',
+      description: '',
+      category: 'events',
+      imageUrl: '',
+      imageAlt: '',
+      location: '',
+      eventDate: new Date().toISOString().split('T')[0],
+      uploadedBy: 'Admin',
+      tags: [],
+      featured: false,
+      published: true
+    });
+  };
+
+  const openGalleryModal = (image?: GalleryImage) => {
+    if (image) {
+      setEditingGalleryImage(image);
+      setGalleryForm({
+        ...image,
+        eventDate: image.eventDate ? image.eventDate.split('T')[0] : new Date().toISOString().split('T')[0]
+      });
+    } else {
+      setEditingGalleryImage(null);
+      resetGalleryForm();
+    }
+    setShowGalleryModal(true);
+  };
+
+  const openCourseModal = (course?: Course) => {
+    if (course) {
+      setEditingCourse(course);
+      setCourseForm(course);
+    } else {
+      setEditingCourse(null);
+      resetCourseForm();
+    }
+    setShowCourseModal(true);
+  };
+
+  const openUniversityModal = (university?: University) => {
+    if (university) {
+      setEditingUniversity(university);
+      setUniversityForm(university);
+    } else {
+      setEditingUniversity(null);
+      resetUniversityForm();
+    }
+    setShowUniversityModal(true);
+  };
+
+  const seedSampleData = async () => {
+    if (!confirm('This will add sample courses and universities. Continue?')) return;
+    
+    setIsSeeding(true);
+    try {
+      const response = await fetch('/api/seed', {
+        method: 'POST'
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(`Sample data added successfully! Added ${data.data.courses} courses and ${data.data.universities} universities.`);
+        // Refresh the data
+        fetchCourses();
+        fetchUniversities();
+      } else {
+        alert('Error seeding data: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      alert('Error seeding data. Please try again.');
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const renderContactsSection = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Contacts List */}
+      <div className="lg:col-span-2">
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="p-6 border-b">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Contact Submissions</h2>
+                <div className="flex items-center space-x-4 mt-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm text-gray-600">{contacts.length} Total Contacts</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span className="text-sm text-gray-600">
+                      {subscriptions.length} Total Subscribers
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => {
+                    fetchContacts();
+                    fetchAnalyticsData();
+                  }}
+                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span>Refresh</span>
+                </button>
+                <Filter className="h-4 w-4 text-gray-400" />
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => {
+                    setSelectedStatus(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="new">New</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="divide-y divide-gray-200">
+            {loading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Loading contacts...</p>
+              </div>
+            ) : contacts.length === 0 ? (
+              <div className="p-8 text-center">
+                <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No contact submissions found</p>
+              </div>
+            ) : (
+              contacts.map((contact) => (
+                <div
+                  key={contact._id}
+                  className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                    selectedContact?._id === contact._id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                  }`}
+                  onClick={() => setSelectedContact(contact)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h3 className="font-medium text-gray-900">{contact.name}</h3>
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(contact.status)}`}>
+                          {contact.status.replace('-', ' ')}
+                        </span>
+                        {subscriptions.some(sub => sub.email === contact.email) && (
+                          <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                            Newsletter Subscriber
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-1">{contact.subject}</p>
+                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Mail className="h-3 w-3" />
+                          <span>{contact.email}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>{formatDate(contact.createdAt)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Eye className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="p-4 border-t bg-gray-50">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Contact Details */}
+      <div className="lg:col-span-1">
+        <div className="bg-white rounded-lg shadow-sm border">
+          {selectedContact ? (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Contact Details</h3>
+                <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedContact.status)}`}>
+                  {selectedContact.status.replace('-', ' ')}
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <div className="flex items-center space-x-2">
+                    <User className="h-4 w-4 text-gray-400" />
+                    <span className="text-gray-900">{selectedContact.name}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <a href={`mailto:${selectedContact.email}`} className="text-blue-600 hover:text-blue-800">
+                      {selectedContact.email}
+                    </a>
+                  </div>
+                {/* Newsletter Subscription Status */}
+                  <div className="mt-2 ml-6">
+                    {subscriptions.find(sub => sub.email === selectedContact.email) ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm font-medium text-green-800">Newsletter Subscriber</span>
+                        </div>
+                        <div className="text-xs text-green-600 space-y-1">
+                          {(() => {
+                            const subscription = subscriptions.find(sub => sub.email === selectedContact.email);
+                            return (
+                              <>
+                                <p><strong>Subscribed:</strong> {new Date(subscription?.subscribedAt || '').toLocaleDateString('en-IN', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}</p>
+                                {subscription?.name && (
+                                  <p><strong>Subscriber Name:</strong> {subscription.name}</p>
+                                )}
+                                <p><strong>Status:</strong> {subscription?.isActive !== false ? 'Active' : 'Inactive'}</p>
+                                <p><strong>Source:</strong> Newsletter Signup</p>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                          <span className="text-sm text-gray-600">Not subscribed to newsletter</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const subscribeUrl = `${window.location.origin}/?subscribe=true&email=${encodeURIComponent(selectedContact.email)}&name=${encodeURIComponent(selectedContact.name)}`;
+                            navigator.clipboard.writeText(subscribeUrl);
+                            alert('✅ Newsletter signup link copied to clipboard');
+                          }}
+                          className="text-xs text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Copy newsletter signup link
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    <a href={`tel:${selectedContact.phone}`} className="text-blue-600 hover:text-blue-800">
+                      {selectedContact.phone}
+                    </a>
+                  </div>
+                </div>
+
+                {selectedContact.serviceInterest && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Service Interest</label>
+                    <span className="text-gray-900">{selectedContact.serviceInterest}</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                  <span className="text-gray-900">{selectedContact.subject}</span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                  <div className="bg-gray-50 p-3 rounded-md">
+                    <p className="text-gray-900 text-sm whitespace-pre-wrap">{selectedContact.message}</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>Submitted: {formatDate(selectedContact.createdAt)}</p>
+                    <p>Updated: {formatDate(selectedContact.updatedAt)}</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 space-y-2">
+                  <button 
+                    onClick={() => {
+                      const subject = `Re: ${selectedContact.subject}`;
+                      const body = `Dear ${selectedContact.name},\n\nThank you for contacting EDBELL EDUSOLUTIONS LLP regarding "${selectedContact.subject}".\n\n${selectedContact.serviceInterest ? `We understand you are interested in our ${selectedContact.serviceInterest} services. ` : ''}We have received your inquiry and would be happy to assist you.\n\nOriginal Message:\n"${selectedContact.message}"\n\nWe will provide you with detailed information and guidance. Please feel free to reach out if you have any additional questions.\n\nBest regards,\nEDBELL EDUSOLUTIONS LLP Team\nPhone: +91 98765 43210\nEmail: info@edbelledusolutions.com`;
+                      
+                      const mailtoLink = `mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      window.open(mailtoLink, '_blank');
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Mail className="h-4 w-4" />
+                    <span>Reply via Email</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      // Clean phone number for calling
+                      const cleanPhone = selectedContact.phone.replace(/[^\d+]/g, '');
+                      const telLink = `tel:${cleanPhone}`;
+                      window.open(telLink, '_self');
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Phone className="h-4 w-4" />
+                    <span>Call Contact</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      // WhatsApp message
+                      const cleanPhone = selectedContact.phone.replace(/[^\d+]/g, '');
+                      const message = `Hello ${selectedContact.name}, this is EDBELL EDUSOLUTIONS LLP. We received your inquiry about "${selectedContact.subject}" and would like to assist you with ${selectedContact.serviceInterest ? `our ${selectedContact.serviceInterest} services` : 'your educational needs'}. When would be a good time to discuss your requirements?`;
+                      const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+                      window.open(whatsappLink, '_blank');
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>WhatsApp Contact</span>
+                  </button>
+                  
+                  <div className="pt-2 border-t">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                    <select
+                      value={selectedContact.status}
+                      onChange={async (e) => {
+                        const newStatus = e.target.value as 'new' | 'in-progress' | 'resolved';
+                        try {
+                          // Update contact status
+                          const response = await fetch(`/api/contact/${selectedContact._id}`, {
+                            method: 'PATCH',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ status: newStatus }),
+                          });
+                          
+                          if (response.ok) {
+                            // Update local state
+                            setSelectedContact({ ...selectedContact, status: newStatus });
+                            setContacts(contacts.map(c => 
+                              c._id === selectedContact._id ? { ...c, status: newStatus } : c
+                            ));
+                            alert(`✅ Contact status updated to "${newStatus.replace('-', ' ')}"`);
+                          } else {
+                            alert('❌ Failed to update contact status');
+                          }
+                        } catch (error) {
+                          console.error('Error updating contact status:', error);
+                          alert('❌ Error updating contact status');
+                        }
+                      }}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="new">New</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Quick Actions</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => {
+                          const contactInfo = `Contact: ${selectedContact.name}\nEmail: ${selectedContact.email}\nPhone: ${selectedContact.phone}\nSubject: ${selectedContact.subject}\nService Interest: ${selectedContact.serviceInterest || 'Not specified'}\nMessage: ${selectedContact.message}`;
+                          navigator.clipboard.writeText(contactInfo);
+                          alert('✅ Contact details copied to clipboard');
+                        }}
+                        className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                      >
+                        Copy Details
+                      </button>
+                      <button
+                        onClick={() => {
+                          const printWindow = window.open('', '_blank');
+                          if (printWindow) {
+                            printWindow.document.write(`
+                              <html>
+                                <head><title>Contact Details - ${selectedContact.name}</title></head>
+                                <body style="font-family: Arial, sans-serif; padding: 20px;">
+                                  <h2>Contact Details</h2>
+                                  <p><strong>Name:</strong> ${selectedContact.name}</p>
+                                  <p><strong>Email:</strong> ${selectedContact.email}</p>
+                                  <p><strong>Phone:</strong> ${selectedContact.phone}</p>
+                                  <p><strong>Subject:</strong> ${selectedContact.subject}</p>
+                                  <p><strong>Service Interest:</strong> ${selectedContact.serviceInterest || 'Not specified'}</p>
+                                  <p><strong>Status:</strong> ${selectedContact.status.replace('-', ' ')}</p>
+                                  <p><strong>Submitted:</strong> ${formatDate(selectedContact.createdAt)}</p>
+                                  <p><strong>Message:</strong></p>
+                                  <div style="background: #f5f5f5; padding: 10px; border-radius: 5px;">
+                                    ${selectedContact.message.replace(/\n/g, '<br>')}
+                                  </div>
+                                </body>
+                              </html>
+                            `);
+                            printWindow.document.close();
+                            printWindow.print();
+                          }
+                        }}
+                        className="px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                      >
+                        Print Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">Select a contact to view details</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSubscribersSection = () => (
+    <div className="space-y-8">
+      {/* Newsletter Subscribers Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-blue-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Newsletter Subscribers</h2>
+              <p className="text-gray-600 mt-1">Manage newsletter subscriptions and subscriber details</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => {
+                  fetchAnalyticsData();
+                  fetchContacts();
+                }}
+                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span>Refresh Data</span>
+              </button>
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-blue-600">{subscriptions.length}</span>
+                <p className="text-sm text-gray-600">Total Subscribers</p>
+              </div>
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-green-600">
+                  {subscriptions.filter(sub => sub.isActive !== false).length}
+                </span>
+                <p className="text-sm text-gray-600">Active</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="text-center p-6 bg-blue-50 rounded-lg">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Mail className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{subscriptions.length}</h3>
+              <p className="text-gray-600">Total Subscribers</p>
+            </div>
+            <div className="text-center p-6 bg-green-50 rounded-lg">
+              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <CheckCircle className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">
+                {subscriptions.filter(sub => sub.isActive !== false).length}
+              </h3>
+              <p className="text-gray-600">Active Subscriptions</p>
+            </div>
+            <div className="text-center p-6 bg-yellow-50 rounded-lg">
+              <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">
+                {subscriptions.filter(sub => {
+                  const subDate = new Date(sub.subscribedAt || sub.createdAt);
+                  const today = new Date();
+                  const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+                  return subDate >= thirtyDaysAgo;
+                }).length}
+              </h3>
+              <p className="text-gray-600">Last 30 Days</p>
+            </div>
+            <div className="text-center p-6 bg-purple-50 rounded-lg">
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <MessageCircle className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">
+                {subscriptions.filter(sub => contacts.some(contact => contact.email === sub.email)).length}
+              </h3>
+              <p className="text-gray-600">Also Contacted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Subscribers List */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">Subscriber Details</h3>
+          <p className="text-gray-600">Complete list of newsletter subscribers with contact history</p>
+        </div>
+        <div className="p-6">
+          {subscriptions.length === 0 ? (
+            <div className="text-center py-12">
+              <Mail className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No subscribers yet</h3>
+              <p className="text-gray-500 mb-4">Newsletter subscriptions will appear here</p>
+              <button
+                onClick={() => {
+                  const newsletterUrl = `${window.location.origin}/#newsletter`;
+                  navigator.clipboard.writeText(newsletterUrl);
+                  alert('✅ Newsletter signup link copied to clipboard');
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                Copy Newsletter Link
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscriber</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscribed Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact History</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {subscriptions.map((subscription, index) => {
+                    const hasContactHistory = contacts.some(contact => contact.email === subscription.email);
+                    const contactRecord = contacts.find(contact => contact.email === subscription.email);
+                    return (
+                      <tr key={subscription._id || index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                                <span className="text-white font-medium text-sm">
+                                  {(subscription.name || subscription.email).charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {subscription.name || 'Anonymous'}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                Newsletter Subscriber
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                            <span className="text-sm text-gray-900">{subscription.email}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(subscription.subscribedAt || subscription.createdAt).toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            subscription.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {subscription.isActive !== false ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {hasContactHistory ? (
+                            <div className="flex items-center space-x-2">
+                              <MessageCircle className="h-4 w-4 text-green-500" />
+                              <span className="text-xs text-green-600 font-medium">
+                                Contacted ({contactRecord?.status})
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">No contact history</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          <button
+                            onClick={() => {
+                              const subject = 'Newsletter Update from EDBELL EDUSOLUTIONS LLP';
+                              const body = `Dear ${subscription.name || 'Subscriber'},\n\nThank you for subscribing to our newsletter! We're excited to share the latest educational insights and opportunities with you.\n\nBest regards,\nEDBELL EDUSOLUTIONS LLP Team\nPhone: +91 98765 43210\nEmail: info@edbelledusolutions.com`;
+                              const mailtoLink = `mailto:${subscription.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                              window.open(mailtoLink, '_blank');
+                            }}
+                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                          >
+                            Email
+                          </button>
+                          {hasContactHistory && (
+                            <button
+                              onClick={() => {
+                                setActiveSection('contacts');
+                                setSelectedContact(contactRecord);
+                              }}
+                              className="text-green-600 hover:text-green-900 transition-colors"
+                            >
+                              View Contact
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderBlogsSection = () => (
+    <div className="space-y-8">
+      {/* Blog Management Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-purple-50 to-purple-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Blog Management</h2>
+              <p className="text-gray-600 mt-1">Create and manage blog posts for your website</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => openBlogModal()}
+                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <Plus className="h-4 w-4" />
+                <span>New Blog Post</span>
+              </button>
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-purple-600">{blogs.length}</span>
+                <p className="text-sm text-gray-600">Total Posts</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="text-center p-6 bg-green-50 rounded-lg">
+              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{blogs.filter(b => b.published).length}</h3>
+              <p className="text-gray-600">Published</p>
+            </div>
+            <div className="text-center p-6 bg-yellow-50 rounded-lg">
+              <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Edit className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{blogs.filter(b => !b.published).length}</h3>
+              <p className="text-gray-600">Drafts</p>
+            </div>
+            <div className="text-center p-6 bg-blue-50 rounded-lg">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Award className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{blogs.filter(b => b.featured).length}</h3>
+              <p className="text-gray-600">Featured</p>
+            </div>
+            <div className="text-center p-6 bg-gray-50 rounded-lg">
+              <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Tag className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{[...new Set(blogs.flatMap(b => b.tags))].length}</h3>
+              <p className="text-gray-600">Unique Tags</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Blog Posts Table */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <h3 className="text-xl font-semibold text-gray-900">All Blog Posts</h3>
+          <p className="text-gray-600">Manage your blog content and publication status</p>
+        </div>
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {blogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center">
+                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No blog posts found</h3>
+                      <p className="text-gray-500 mb-4">Get started by creating your first blog post</p>
+                      <button
+                        onClick={() => openBlogModal()}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                      >
+                        Create Your First Blog Post
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  blogs.map((blog) => (
+                    <tr key={blog._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-8 w-8">
+                            <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                              <FileText className="h-4 w-4 text-purple-600" />
+                            </div>
+                          </div>
+                          <div className="ml-4 min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">{blog.title}</div>
+                            <div className="text-sm text-gray-500 truncate">{blog.slug}</div>
+                            {blog.featured && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                                <Award className="h-3 w-3 mr-1" />
+                                Featured
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {blog.author}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {blog.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          blog.published 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {blog.published ? 'Published' : 'Draft'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {new Date(blog.publishDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => openBlogModal(blog)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors flex items-center space-x-1"
+                          >
+                            <Edit className="h-3 w-3" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => deleteBlog(blog._id!)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs transition-colors flex items-center space-x-1"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            <span>Delete</span>
+                          </button>
+                          {blog.published && (
+                            <Link
+                              href={`/blog/${blog.slug}`}
+                              target="_blank"
+                              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs transition-colors"
+                            >
+                              View
+                            </Link>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderGallerySection = () => (
+    <div className="space-y-8">
+      {/* Gallery Management Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-purple-50 to-pink-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Gallery Management</h2>
+              <p className="text-gray-600 mt-1">Upload and manage photo gallery for your website</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-purple-600">{galleryImages.length}</div>
+                <div className="text-sm text-gray-500">Total Images</div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-green-600">{galleryImages.filter(img => img.published).length}</div>
+                <div className="text-sm text-gray-500">Published</div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600">{galleryImages.filter(img => img.featured).length}</div>
+                <div className="text-sm text-gray-500">Featured</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex items-center space-x-4">
+              <h3 className="text-lg font-semibold text-gray-900">Gallery Images</h3>
+              <span className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                Last updated: {new Date().toLocaleDateString()}
+              </span>
+            </div>
+            <button
+              onClick={() => openGalleryModal()}
+              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Upload New Image</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {galleryImages.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Images Yet</h3>
+                <p className="text-gray-600 mb-4">Upload your first image to get started with the gallery.</p>
+                <button
+                  onClick={() => openGalleryModal()}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors"
+                >
+                  Upload First Image
+                </button>
+              </div>
+            ) : (
+              galleryImages.map((image) => (
+                <div key={image._id} className="bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                  <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                    <img
+                      src={image.imageUrl}
+                      alt={image.imageAlt}
+                      className="w-full h-32 object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/api/placeholder/300/200';
+                      }}
+                    />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        image.category === 'events' ? 'bg-blue-100 text-blue-800' :
+                        image.category === 'campus' ? 'bg-green-100 text-green-800' :
+                        image.category === 'graduation' ? 'bg-purple-100 text-purple-800' :
+                        image.category === 'activities' ? 'bg-orange-100 text-orange-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {image.category}
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        {image.featured && (
+                          <span className="text-yellow-500" title="Featured">
+                            <Award className="h-3 w-3" />
+                          </span>
+                        )}
+                        <span className={`w-2 h-2 rounded-full ${image.published ? 'bg-green-500' : 'bg-gray-400'}`} title={image.published ? 'Published' : 'Draft'}></span>
+                      </div>
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1 line-clamp-1">{image.title}</h4>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{image.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">
+                        {new Date(image.eventDate || image.createdAt || '').toLocaleDateString()}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => openGalleryModal(image)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteGalleryImage(image._id!)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPagesSection = () => (
+    <div className="space-y-8">
+      {/* Website Overview */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Website Pages Overview</h2>
+              <p className="text-gray-600 mt-1">Complete website structure and page management</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-blue-600">{websitePages.length}</span>
+                <p className="text-sm text-gray-600">Main Pages</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-blue-50 rounded-lg">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Globe className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{websitePages.length}</h3>
+              <p className="text-gray-600">Main Pages</p>
+            </div>
+            <div className="text-center p-6 bg-purple-50 rounded-lg">
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{coursePages.length}</h3>
+              <p className="text-gray-600">Course Pages</p>
+            </div>
+            <div className="text-center p-6 bg-green-50 rounded-lg">
+              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <GraduationCap className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">{universityPages.length}</h3>
+              <p className="text-gray-600">University Pages</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Website Pages */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-blue-100">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Globe className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900">Main Website Pages</h3>
+              <p className="text-gray-600">Core navigation and essential pages</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Page</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {websitePages.map((page, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-8 w-8">
+                          <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            {page.icon}
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{page.name}</div>
+                          <div className="text-sm text-gray-500">{page.url}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-xs">{page.description}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        {page.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {page.lastUpdated}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <Link
+                          href={page.url}
+                          target="_blank"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                        >
+                          View
+                        </Link>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(`${window.location.origin}${page.url}`)}
+                          className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs transition-colors"
+                        >
+                          Copy URL
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAddCourseSection = () => (
+    <div className="space-y-8">
+      {/* Course Management Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-purple-50 to-purple-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Course Management</h2>
+                <p className="text-gray-600 mt-1">Create, edit, and manage course pages</p>
+              </div>
+            </div>
+            <button
+              onClick={() => openCourseModal()}
+              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Course</span>
+            </button>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {courses.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center">
+                      <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No courses found</h3>
+                      <p className="text-gray-500 mb-4">Get started by adding your first course or use sample data</p>
+                      <div className="flex justify-center space-x-3">
+                        <button
+                          onClick={() => openCourseModal()}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                        >
+                          Add Your First Course
+                        </button>
+                        <button
+                          onClick={seedSampleData}
+                          disabled={isSeeding}
+                          className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                        >
+                          {isSeeding ? 'Loading...' : 'Add Sample Data'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  courses.map((course, index) => (
+                    <tr key={course._id || index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-8 w-8">
+                            <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                              <BookOpen className="h-4 w-4 text-purple-600" />
+                            </div>
+                          </div>
+                          <div className="ml-4 min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">{course.name}</div>
+                            <div className="text-sm text-gray-500 truncate">{course.url}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${
+                          course.category === 'Undergraduate' ? 'bg-blue-100 text-blue-800' :
+                          course.category === 'Postgraduate' ? 'bg-green-100 text-green-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {course.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                        {course.duration}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 line-clamp-2">{course.description}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => openCourseModal(course)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors flex items-center space-x-1"
+                          >
+                            <Edit className="h-3 w-3" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => deleteCourse(course._id!)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs transition-colors flex items-center space-x-1"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            <span>Delete</span>
+                          </button>
+                          {course.url && (
+                            <Link
+                              href={course.url}
+                              target="_blank"
+                              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs transition-colors"
+                            >
+                              View
+                            </Link>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAddUniversitySection = () => (
+    <div className="space-y-8">
+      {/* University Management Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-green-50 to-green-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                <GraduationCap className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">University Management</h2>
+                <p className="text-gray-600 mt-1">Create, edit, and manage university pages</p>
+              </div>
+            </div>
+            <button
+              onClick={() => openUniversityModal()}
+              className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add University</span>
+            </button>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accreditation</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Established</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {universities.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center">
+                      <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No universities found</h3>
+                      <p className="text-gray-500 mb-4">Get started by adding your first university or use sample data</p>
+                      <div className="flex justify-center space-x-3">
+                        <button
+                          onClick={() => openUniversityModal()}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                        >
+                          Add Your First University
+                        </button>
+                        <button
+                          onClick={seedSampleData}
+                          disabled={isSeeding}
+                          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                        >
+                          {isSeeding ? 'Loading...' : 'Add Sample Data'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  universities.map((university, index) => (
+                    <tr key={university._id || index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-8 w-8">
+                            <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
+                              <GraduationCap className="h-4 w-4 text-green-600" />
+                            </div>
+                          </div>
+                          <div className="ml-4 min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">{university.name}</div>
+                            <div className="text-sm text-gray-500 truncate">{university.url}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${
+                          university.accreditation === 'NAAC A++' ? 'bg-green-100 text-green-800' :
+                          university.accreditation === 'NAAC A+' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {university.accreditation}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                        {university.established}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 line-clamp-2">{university.description}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => openUniversityModal(university)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors flex items-center space-x-1"
+                          >
+                            <Edit className="h-3 w-3" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => deleteUniversity(university._id!)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs transition-colors flex items-center space-x-1"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            <span>Delete</span>
+                          </button>
+                          {university.url && (
+                            <Link
+                              href={university.url}
+                              target="_blank"
+                              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs transition-colors"
+                            >
+                              View
+                            </Link>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAnalyticsSection = () => (
+    <div className="space-y-8">
+      {/* Key Metrics */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <h2 className="text-lg font-semibold text-gray-900">Website Analytics</h2>
+          <p className="text-gray-600">Key performance metrics and statistics</p>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg text-white text-center">
+              <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-80" />
+              <h3 className="text-3xl font-bold">{analyticsData.totalVisitors.toLocaleString()}</h3>
+              <p className="text-blue-100">Total Visitors</p>
+              <p className="text-xs text-blue-200 mt-1">{analyticsData.visitorGrowth}</p>
+            </div>
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg text-white text-center">
+              <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-80" />
+              <h3 className="text-3xl font-bold">{analyticsData.contactInquiries}</h3>
+              <p className="text-green-100">Contact Inquiries</p>
+              <p className="text-xs text-green-200 mt-1">This month</p>
+            </div>
+            <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-lg text-white text-center">
+              <BookOpen className="h-8 w-8 mx-auto mb-2 opacity-80" />
+              <h3 className="text-3xl font-bold">{analyticsData.coursePageViews.toLocaleString()}</h3>
+              <p className="text-yellow-100">Course Page Views</p>
+              <p className="text-xs text-yellow-200 mt-1">{analyticsData.courseViewsGrowth}</p>
+            </div>
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white text-center">
+              <Users className="h-8 w-8 mx-auto mb-2 opacity-80" />
+              <h3 className="text-3xl font-bold">{analyticsData.newsletterSubscribers}</h3>
+              <p className="text-purple-100">Newsletter Subscribers</p>
+              <p className="text-xs text-purple-200 mt-1">{analyticsData.subscriberGrowth}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Popular Pages */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Popular Pages</h2>
+              <p className="text-gray-600">Most visited pages on the website</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <select
+                onChange={(e) => {
+                  // Refetch analytics with different time range
+                  const days = e.target.value;
+                  fetch(`/api/analytics?days=${days}`)
+                    .then(res => res.json())
+                    .then(data => {
+                      setPopularPages(data.popularPages || []);
+                      setPageViewsData(data);
+                    })
+                    .catch(console.error);
+                }}
+                className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          {popularPages.length === 0 ? (
+            <div className="text-center py-8">
+              <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No page views yet</h3>
+              <p className="text-gray-500 mb-4">Page views will appear here as visitors browse your website</p>
+              <div className="text-sm text-gray-400">
+                <p>Analytics tracking is active and will collect data automatically</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {popularPages.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-bold">{index + 1}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">{item.page}</h3>
+                      <p className="text-sm text-gray-600">{item.views} views</p>
+                      {item.lastVisit && (
+                        <p className="text-xs text-gray-400">
+                          Last visit: {new Date(item.lastVisit).toLocaleDateString('en-IN', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-24 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-500" 
+                        style={{ width: `${item.percentage}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 min-w-[3rem] text-right">
+                      {item.percentage}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+              
+              {pageViewsData.totalViews > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{pageViewsData.totalViews}</div>
+                      <div className="text-sm text-gray-600">Total Page Views</div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {pageViewsData.dailyViews?.length || 0}
+                      </div>
+                      <div className="text-sm text-gray-600">Active Days</div>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {Math.round(pageViewsData.totalViews / Math.max(pageViewsData.dailyViews?.length || 1, 1))}
+                      </div>
+                      <div className="text-sm text-gray-600">Avg. Daily Views</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Newsletter Subscribers */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <h2 className="text-lg font-semibold text-gray-900">Newsletter Subscribers</h2>
+          <p className="text-gray-600">Recent newsletter subscriptions and analytics</p>
+        </div>
+        <div className="p-6">
+          {/* Subscription Analytics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 p-4 rounded-lg text-white text-center">
+              <Users className="h-6 w-6 mx-auto mb-2 opacity-80" />
+              <h3 className="text-2xl font-bold">{subscriptions.length}</h3>
+              <p className="text-indigo-100 text-sm">Total Subscribers</p>
+            </div>
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4 rounded-lg text-white text-center">
+              <Calendar className="h-6 w-6 mx-auto mb-2 opacity-80" />
+              <h3 className="text-2xl font-bold">
+                {subscriptions.filter(sub => {
+                  const subDate = new Date(sub.subscribedAt || sub.createdAt);
+                  const today = new Date();
+                  const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+                  return subDate >= thirtyDaysAgo;
+                }).length}
+              </h3>
+              <p className="text-emerald-100 text-sm">Last 30 Days</p>
+            </div>
+            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-4 rounded-lg text-white text-center">
+              <BarChart3 className="h-6 w-6 mx-auto mb-2 opacity-80" />
+              <h3 className="text-2xl font-bold">
+                {subscriptions.filter(sub => sub.isActive !== false).length}
+              </h3>
+              <p className="text-amber-100 text-sm">Active Subscribers</p>
+            </div>
+          </div>
+
+          {subscriptions.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No subscribers yet</h3>
+              <p className="text-gray-500">Newsletter subscriptions will appear here</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscribed Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact History</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {subscriptions.slice(0, 10).map((subscription, index) => {
+                    const hasContactHistory = contacts.some(contact => contact.email === subscription.email);
+                    return (
+                      <tr key={subscription._id || index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                            <span className="text-sm text-gray-900">{subscription.email}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-900">{subscription.name || 'Not provided'}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(subscription.subscribedAt || subscription.createdAt).toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            subscription.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {subscription.isActive !== false ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {hasContactHistory ? (
+                            <div className="flex items-center space-x-1">
+                              <MessageCircle className="h-4 w-4 text-green-500" />
+                              <span className="text-xs text-green-600 font-medium">Has contacted</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">No contact history</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {subscriptions.length > 10 && (
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-gray-500">
+                    Showing 10 of {subscriptions.length} subscribers
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+          <p className="text-gray-600">Latest website activities and updates</p>
+        </div>
+        <div className="p-6">
+          <div className="space-y-4">
+            {[
+              { action: 'New contact inquiry received', time: '2 hours ago', type: 'contact' },
+              { action: 'Course page updated', time: '5 hours ago', type: 'update' },
+              { action: 'University profile added', time: '1 day ago', type: 'add' },
+              { action: 'SEO optimization completed', time: '2 days ago', type: 'seo' },
+              { action: 'New specialized course added', time: '3 days ago', type: 'add' }
+            ].map((activity, index) => (
+              <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                <div className={`w-3 h-3 rounded-full ${
+                  activity.type === 'contact' ? 'bg-green-500' :
+                  activity.type === 'update' ? 'bg-blue-500' :
+                  activity.type === 'add' ? 'bg-purple-500' :
+                  'bg-yellow-500'
+                }`}></div>
+                <div className="flex-1">
+                  <p className="text-gray-900">{activity.action}</p>
+                  <p className="text-sm text-gray-500">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSettingsSection = () => (
+    <div className="bg-white rounded-lg shadow-sm border">
+      <div className="p-6 border-b">
+        <h2 className="text-lg font-semibold text-gray-900">System Settings</h2>
+        <p className="text-gray-600">Configure system preferences and settings</p>
+      </div>
+      <div className="p-6">
+        <div className="space-y-6">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-2">Database Status</h3>
+            <p className="text-green-600 text-sm">✓ MongoDB Connected</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-2">Email Configuration</h3>
+            <p className="text-yellow-600 text-sm">⚠ Email notifications not configured</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-2">Backup Status</h3>
+            <p className="text-gray-600 text-sm">Last backup: Not configured</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderWebsiteSection = () => (
+    <div className="space-y-8">
+      {/* Website Navigation Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Website Navigation</h2>
+              <p className="text-gray-600 mt-1">Access all website pages directly from the dashboard</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-blue-600">{websitePages.length}</span>
+                <p className="text-sm text-gray-600">Total Pages</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {websitePages.map((page, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    {page.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">{page.name}</h3>
+                    <p className="text-sm text-gray-500">{page.url}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{page.description}</p>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    {page.status}
+                  </span>
+                  <span className="text-xs text-gray-500">Updated: {page.lastUpdated}</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => window.open(page.url, '_blank')}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center space-x-1"
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span>Visit Page</span>
+                  </button>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${page.url}`)}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition-colors"
+                    title="Copy URL"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b">
+          <h3 className="text-xl font-semibold text-gray-900">Quick Actions</h3>
+          <p className="text-gray-600">Common website management tasks</p>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button
+              onClick={() => window.open('/', '_blank')}
+              className="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              <Home className="h-8 w-8 text-blue-600 mb-2" />
+              <span className="text-sm font-medium text-blue-900">Home Page</span>
+            </button>
+            <button
+              onClick={() => window.open('/contact', '_blank')}
+              className="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+            >
+              <Phone className="h-8 w-8 text-green-600 mb-2" />
+              <span className="text-sm font-medium text-green-900">Contact Form</span>
+            </button>
+            <button
+              onClick={() => window.open('/courses', '_blank')}
+              className="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+            >
+              <BookOpen className="h-8 w-8 text-purple-600 mb-2" />
+              <span className="text-sm font-medium text-purple-900">All Courses</span>
+            </button>
+            <button
+              onClick={() => window.open('/blog', '_blank')}
+              className="flex flex-col items-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+            >
+              <FileText className="h-8 w-8 text-yellow-600 mb-2" />
+              <span className="text-sm font-medium text-yellow-900">Blog Posts</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCourseDetailsSection = () => (
+    <div className="space-y-8">
+      {/* Course Details Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-purple-50 to-purple-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Course Details</h2>
+              <p className="text-gray-600 mt-1">View all course detail pages</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-purple-600">{coursePages.length}</span>
+                <p className="text-sm text-gray-600">Course Pages</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {coursePages.map((course, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    {course.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">{course.name}</h3>
+                    <p className="text-sm text-gray-500">{course.url}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    course.category === 'Undergraduate' ? 'bg-blue-100 text-blue-800' :
+                    course.category === 'Postgraduate' ? 'bg-green-100 text-green-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {course.category}
+                  </span>
+                  <span className="text-xs text-gray-500">{course.duration}</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => window.open(course.url, '_blank')}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center space-x-1"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    <span>View Course</span>
+                  </button>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${course.url}`)}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition-colors"
+                    title="Copy URL"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderUniversityDetailsSection = () => (
+    <div className="space-y-8">
+      {/* University Details Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-green-50 to-green-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">University Details</h2>
+              <p className="text-gray-600 mt-1">View all university detail pages</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-2xl font-bold text-green-600">{universityPages.length}</span>
+                <p className="text-sm text-gray-600">University Pages</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {universityPages.map((university, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    {university.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">{university.name}</h3>
+                    <p className="text-sm text-gray-500">{university.url}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{university.description}</p>
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    university.accreditation === 'NAAC A++' ? 'bg-green-100 text-green-800' :
+                    university.accreditation === 'NAAC A+' ? 'bg-blue-100 text-blue-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {university.accreditation}
+                  </span>
+                  <span className="text-xs text-gray-500">Est. {university.established}</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => window.open(university.url, '_blank')}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center space-x-1"
+                  >
+                    <GraduationCap className="h-4 w-4" />
+                    <span>View University</span>
+                  </button>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${university.url}`)}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition-colors"
+                    title="Copy URL"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <style jsx>{`
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          line-height: 1.4;
+          max-height: 2.8em;
+        }
+      `}</style>
+
+      {/* Course Modal */}
+      {showCourseModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 z-10">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  {editingCourse ? 'Edit Course' : 'Add New Course'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCourseModal(false);
+                    setEditingCourse(null);
+                    resetCourseForm();
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <XCircle className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Course Name *</label>
+                  <input
+                    type="text"
+                    value={courseForm.name}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      const autoUrl = name ? `/courses/${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}` : '';
+                      setCourseForm({ ...courseForm, name, url: autoUrl });
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., Bachelor of Computer Science"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">URL Slug * (Auto-generated)</label>
+                  <input
+                    type="text"
+                    value={courseForm.url}
+                    onChange={(e) => setCourseForm({ ...courseForm, url: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50"
+                    placeholder="Auto-generated from course name"
+                    required
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Auto-generated from course name. Edit if needed.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const autoUrl = courseForm.name ? `/courses/${courseForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}` : '';
+                      setCourseForm({ ...courseForm, url: autoUrl });
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+                  >
+                    Regenerate URL
+                  </button>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select
+                    value={courseForm.category}
+                    onChange={(e) => setCourseForm({ ...courseForm, category: e.target.value as Course['category'] })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="Undergraduate">Undergraduate</option>
+                    <option value="Postgraduate">Postgraduate</option>
+                    <option value="Specialized">Specialized</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Duration *</label>
+                  <input
+                    type="text"
+                    value={courseForm.duration}
+                    onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., 3 Years or 6 Months"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fees</label>
+                  <input
+                    type="text"
+                    value={courseForm.fees}
+                    onChange={(e) => setCourseForm({ ...courseForm, fees: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., ₹50,000 per year or ₹25,000 total"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Eligibility</label>
+                  <input
+                    type="text"
+                    value={courseForm.eligibility}
+                    onChange={(e) => setCourseForm({ ...courseForm, eligibility: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., 12th Pass with PCM or Graduate Degree"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea
+                  value={courseForm.description}
+                  onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
+                  rows={4}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., Comprehensive computer science program covering programming, algorithms, data structures, software engineering, and emerging technologies. Students will gain practical experience through projects and internships."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Detailed description that will appear on the course page.</p>
+              </div>
+
+              {/* Additional Course Details */}
+              <div className="border-t pt-6 mt-6">
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Additional Course Details</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
+                    <textarea
+                      value={courseForm.curriculum}
+                      onChange={(e) => setCourseForm({ ...courseForm, curriculum: e.target.value })}
+                      rows={3}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="e.g., Semester 1: Programming Fundamentals, Mathematics, English. Semester 2: Data Structures, Database Systems, Web Development..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Career Opportunities</label>
+                    <textarea
+                      value={courseForm.careerOpportunities}
+                      onChange={(e) => setCourseForm({ ...courseForm, careerOpportunities: e.target.value })}
+                      rows={3}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="e.g., Software Developer, Data Analyst, System Administrator, Web Developer, IT Consultant, Project Manager..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowCourseModal(false);
+                  setEditingCourse(null);
+                  resetCourseForm();
+                }}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <XCircle className="h-4 w-4" />
+                <span>Cancel</span>
+              </button>
+              <button
+                onClick={editingCourse ? updateCourse : createCourse}
+                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors"
+              >
+                <Save className="h-4 w-4" />
+                <span>{editingCourse ? 'Update' : 'Create'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* University Modal */}
+      {showUniversityModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 z-10">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  {editingUniversity ? 'Edit University' : 'Add New University'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowUniversityModal(false);
+                    setEditingUniversity(null);
+                    resetUniversityForm();
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <XCircle className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">University Name *</label>
+                  <input
+                    type="text"
+                    value={universityForm.name}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      const autoUrl = name ? `/universities/${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}` : '';
+                      setUniversityForm({ ...universityForm, name, url: autoUrl });
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., Delhi University or IGNOU"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">URL Slug * (Auto-generated)</label>
+                  <input
+                    type="text"
+                    value={universityForm.url}
+                    onChange={(e) => setUniversityForm({ ...universityForm, url: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
+                    placeholder="Auto-generated from university name"
+                    required
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Auto-generated from university name. Edit if needed.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const autoUrl = universityForm.name ? `/universities/${universityForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}` : '';
+                      setUniversityForm({ ...universityForm, url: autoUrl });
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+                  >
+                    Regenerate URL
+                  </button>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Accreditation</label>
+                  <input
+                    type="text"
+                    value={universityForm.accreditation}
+                    onChange={(e) => setUniversityForm({ ...universityForm, accreditation: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., NAAC A++"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Established</label>
+                  <input
+                    type="text"
+                    value={universityForm.established}
+                    onChange={(e) => setUniversityForm({ ...universityForm, established: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., 1985"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={universityForm.location}
+                    onChange={(e) => setUniversityForm({ ...universityForm, location: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., New Delhi, India"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                  <input
+                    type="url"
+                    value={universityForm.website}
+                    onChange={(e) => setUniversityForm({ ...universityForm, website: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., https://www.ignou.ac.in"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea
+                  value={universityForm.description}
+                  onChange={(e) => setUniversityForm({ ...universityForm, description: e.target.value })}
+                  rows={4}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="e.g., Premier educational institution known for excellence in higher education. Offers diverse programs with experienced faculty, modern infrastructure, and strong industry connections. Committed to providing quality education and research opportunities."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Detailed description that will appear on the university page.</p>
+              </div>
+
+              {/* Additional University Details */}
+              <div className="border-t pt-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Additional University Details</h4>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">University Type</label>
+                    <select
+                      value={universityForm.universityType}
+                      onChange={(e) => setUniversityForm({ ...universityForm, universityType: e.target.value })}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Select Type</option>
+                      <option value="Central University">Central University</option>
+                      <option value="State University">State University</option>
+                      <option value="Private University">Private University</option>
+                      <option value="Deemed University">Deemed University</option>
+                      <option value="Open University">Open University</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Campus Size</label>
+                    <input
+                      type="text"
+                      value={universityForm.campusSize}
+                      onChange={(e) => setUniversityForm({ ...universityForm, campusSize: e.target.value })}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="e.g., 400 acres"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Total Students</label>
+                    <input
+                      type="text"
+                      value={universityForm.totalStudents}
+                      onChange={(e) => setUniversityForm({ ...universityForm, totalStudents: e.target.value })}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="e.g., 50,000+"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Faculty Count</label>
+                    <input
+                      type="text"
+                      value={universityForm.facultyCount}
+                      onChange={(e) => setUniversityForm({ ...universityForm, facultyCount: e.target.value })}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="e.g., 500+"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Courses Offered</label>
+                  <textarea
+                    value={universityForm.coursesOffered}
+                    onChange={(e) => setUniversityForm({ ...universityForm, coursesOffered: e.target.value })}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., Undergraduate: BA, B.Com, BBA, B.Sc, B.Tech. Postgraduate: MA, M.Com, MBA, M.Sc, M.Tech. Doctoral: Ph.D programs in various disciplines..."
+                  />
+                </div>
+                
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Specializations</label>
+                  <textarea
+                    value={universityForm.specializations}
+                    onChange={(e) => setUniversityForm({ ...universityForm, specializations: e.target.value })}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., Engineering, Management, Arts, Science, Commerce, Computer Applications, Education, Law, Medicine, Agriculture..."
+                  />
+                </div>
+                
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Facilities</label>
+                  <textarea
+                    value={universityForm.facilities}
+                    onChange={(e) => setUniversityForm({ ...universityForm, facilities: e.target.value })}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., Modern classrooms, Well-equipped laboratories, Digital library, Sports complex, Auditorium, Cafeteria, Medical center, Wi-Fi campus..."
+                  />
+                </div>
+                
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Admission Process</label>
+                  <textarea
+                    value={universityForm.admissionProcess}
+                    onChange={(e) => setUniversityForm({ ...universityForm, admissionProcess: e.target.value })}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., Online application, Document verification, Entrance examination, Merit-based selection, Counseling process, Final admission..."
+                  />
+                </div>
+                
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fee Structure</label>
+                  <textarea
+                    value={universityForm.feeStructure}
+                    onChange={(e) => setUniversityForm({ ...universityForm, feeStructure: e.target.value })}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g., Undergraduate: ₹15,000-25,000 per year. Postgraduate: ₹20,000-35,000 per year. Flexible payment options available..."
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowUniversityModal(false);
+                  setEditingUniversity(null);
+                  resetUniversityForm();
+                }}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <XCircle className="h-4 w-4" />
+                <span>Cancel</span>
+              </button>
+              <button
+                onClick={editingUniversity ? updateUniversity : createUniversity}
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+              >
+                <Save className="h-4 w-4" />
+                <span>{editingUniversity ? 'Update' : 'Create'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Blog Modal */}
+      {showBlogModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 z-10">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  {editingBlog ? 'Edit Blog Post' : 'Create New Blog Post'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowBlogModal(false);
+                    setEditingBlog(null);
+                    resetBlogForm();
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <XCircle className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                  <input
+                    type="text"
+                    value={blogForm.title}
+                    onChange={(e) => {
+                      const title = e.target.value;
+                      const autoSlug = title ? title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') : '';
+                      setBlogForm({ ...blogForm, title, slug: autoSlug });
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., The Future of Online Education in India"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">URL Slug * (Auto-generated)</label>
+                  <input
+                    type="text"
+                    value={blogForm.slug}
+                    onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50"
+                    placeholder="Auto-generated from title"
+                    required
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Auto-generated from title. Edit if needed.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Author *</label>
+                  <input
+                    type="text"
+                    value={blogForm.author}
+                    onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., Dr. Arif Wafy Varambatta"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                  <select
+                    value={blogForm.category}
+                    onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="Education Trends">Education Trends</option>
+                    <option value="Career Guidance">Career Guidance</option>
+                    <option value="Study Abroad">Study Abroad</option>
+                    <option value="Scholarships">Scholarships</option>
+                    <option value="Skills Development">Skills Development</option>
+                    <option value="University Rankings">University Rankings</option>
+                    <option value="Regulations">Regulations</option>
+                    <option value="Study Tips">Study Tips</option>
+                    <option value="Industry Insights">Industry Insights</option>
+                    <option value="Technology">Technology</option>
+                    <option value="News">News</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Read Time *</label>
+                  <input
+                    type="text"
+                    value={blogForm.readTime}
+                    onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., 5 min read, 10 minutes read, or just 3"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Format: "5 min read" or just enter a number like "5" (will auto-format)</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Publish Date</label>
+                  <input
+                    type="date"
+                    value={blogForm.publishDate}
+                    onChange={(e) => setBlogForm({ ...blogForm, publishDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Excerpt * (Brief Summary)</label>
+                <textarea
+                  value={blogForm.excerpt}
+                  onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                  rows={3}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="A brief summary of the blog post that will appear in the blog listing and search results..."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">This will appear in blog listings and search results. Minimum 20 characters.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Content * (Full Article)</label>
+                <textarea
+                  value={blogForm.content}
+                  onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
+                  rows={12}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Write your full blog post content here. You can use markdown formatting if needed..."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">The complete blog post content. Minimum 100 characters.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={blogForm.tags.join(', ')}
+                  onChange={(e) => setBlogForm({ ...blogForm, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., online education, career tips, study abroad"
+                />
+                <p className="text-xs text-gray-500 mt-1">Separate tags with commas. These help with search and categorization.</p>
+              </div>
+
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={blogForm.featured}
+                    onChange={(e) => setBlogForm({ ...blogForm, featured: e.target.checked })}
+                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+                    Featured Post
+                  </label>
+                  <p className="ml-2 text-xs text-gray-500">(Will appear prominently on blog page)</p>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="published"
+                    checked={blogForm.published}
+                    onChange={(e) => setBlogForm({ ...blogForm, published: e.target.checked })}
+                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="published" className="ml-2 block text-sm text-gray-900">
+                    Publish Immediately
+                  </label>
+                  <p className="ml-2 text-xs text-gray-500">(Checked by default - uncheck to save as draft)</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowBlogModal(false);
+                  setEditingBlog(null);
+                  resetBlogForm();
+                }}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <XCircle className="h-4 w-4" />
+                <span>Cancel</span>
+              </button>
+              <button
+                onClick={editingBlog ? updateBlog : createBlog}
+                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors"
+              >
+                <Save className="h-4 w-4" />
+                <span>{editingBlog ? 'Update' : 'Create'} Blog Post</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Modal */}
+      {showGalleryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 z-10">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  {editingGalleryImage ? 'Edit Gallery Image' : 'Upload New Image'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowGalleryModal(false);
+                    setEditingGalleryImage(null);
+                    resetGalleryForm();
+                    setSelectedFile(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <XCircle className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* File Upload Section */}
+              {!editingGalleryImage && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Image File *</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                    {selectedFile ? (
+                      <div className="space-y-4">
+                        <div className="w-32 h-32 mx-auto bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                          <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                        </div>
+                        <button
+                          onClick={() => setSelectedFile(null)}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Remove Image
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <Award className="h-12 w-12 text-gray-400 mx-auto" />
+                        <div>
+                          <label className="cursor-pointer">
+                            <span className="text-purple-600 hover:text-purple-800 font-medium">
+                              Click to upload
+                            </span>
+                            <span className="text-gray-600"> or drag and drop</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  if (!file.type.startsWith('image/')) {
+                                    alert('Please select an image file');
+                                    return;
+                                  }
+                                  if (file.size > 5 * 1024 * 1024) {
+                                    alert('File size must be less than 5MB');
+                                    return;
+                                  }
+                                  setSelectedFile(file);
+                                  // Auto-generate title from filename if empty
+                                  if (!galleryForm.title) {
+                                    const filename = file.name.replace(/\.[^/.]+$/, '');
+                                    const title = filename.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                    setGalleryForm(prev => ({ ...prev, title, imageAlt: title }));
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG, GIF up to 5MB
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Form Fields */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                  <input
+                    type="text"
+                    value={galleryForm.title}
+                    onChange={(e) => {
+                      const title = e.target.value;
+                      setGalleryForm({ ...galleryForm, title, imageAlt: title });
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., Annual Graduation Ceremony 2024"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                  <select
+                    value={galleryForm.category}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, category: e.target.value as GalleryImage['category'] })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="events">Events</option>
+                    <option value="campus">Campus</option>
+                    <option value="graduation">Graduation</option>
+                    <option value="activities">Activities</option>
+                    <option value="achievements">Achievements</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Event Date</label>
+                  <input
+                    type="date"
+                    value={galleryForm.eventDate}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, eventDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={galleryForm.location}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, location: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g., Main Auditorium, Campus Library"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea
+                  value={galleryForm.description}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
+                  rows={3}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Describe the photo and the event or moment captured..."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Minimum 10 characters required.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={galleryForm.tags.join(', ')}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., graduation, ceremony, 2024, students, celebration"
+                />
+              </div>
+
+              <div className="flex items-center space-x-6">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={galleryForm.featured}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, featured: e.target.checked })}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Featured Image</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={galleryForm.published}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, published: e.target.checked })}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Publish Immediately</span>
+                </label>
+              </div>
+            </div>
+            <div className="p-6 border-t flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowGalleryModal(false);
+                  setEditingGalleryImage(null);
+                  resetGalleryForm();
+                  setSelectedFile(null);
+                }}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <XCircle className="h-4 w-4" />
+                <span>Cancel</span>
+              </button>
+              <button
+                onClick={editingGalleryImage ? updateGalleryImage : createGalleryImage}
+                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors"
+              >
+                <Save className="h-4 w-4" />
+                <span>{editingGalleryImage ? 'Update' : 'Upload'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+        )}
+
+        {/* Sidebar */}
+        <div className={`${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } fixed lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-50 w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col h-full lg:h-auto`}>
+          {/* Sidebar Header */}
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Admin Panel</h2>
+                  <p className="text-blue-100 text-sm">EDBELL EDUSOLUTIONS</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden text-white hover:text-blue-200"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* User Info */}
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">Welcome back!</p>
+                <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Menu */}
+          <nav className="flex-1 p-4 space-y-2">
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main Menu</h3>
+            </div>
+            {navigationItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveSection(item.id);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 group ${
+                  activeSection === item.id
+                    ? 'bg-blue-100 text-blue-700 shadow-sm border border-blue-200'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+              >
+                <div className={`flex-shrink-0 ${
+                  activeSection === item.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
+                }`}>
+                  {item.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`font-medium text-sm ${
+                    activeSection === item.id ? 'text-blue-900' : 'text-gray-900'
+                  }`}>
+                    {item.name}
+                  </div>
+                  <div className={`text-xs ${
+                    activeSection === item.id ? 'text-blue-600' : 'text-gray-500'
+                  }`}>
+                    {item.description}
+                  </div>
+                </div>
+                {activeSection === item.id && (
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                )}
+              </button>
+            ))}
+          </nav>
+
+          {/* Logout Button */}
+          <div className="p-4 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-colors duration-200 font-medium"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Header */}
+          <div className="bg-white shadow-sm border-b border-gray-200">
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  >
+                    <Menu className="h-6 w-6" />
+                  </button>
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      {navigationItems.find(item => item.id === activeSection)?.name || 'Dashboard'}
+                    </h1>
+                    <p className="text-gray-600 mt-1">
+                      {navigationItems.find(item => item.id === activeSection)?.description || 'Welcome to your admin dashboard'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="text-sm text-gray-500 hidden sm:block">
+                    Last updated: {new Date().toLocaleDateString()}
+                  </div>
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 p-6 overflow-auto">
+            {activeSection === 'contacts' && renderContactsSection()}
+            {activeSection === 'subscribers' && renderSubscribersSection()}
+            {activeSection === 'blogs' && renderBlogsSection()}
+            {activeSection === 'gallery' && renderGallerySection()}
+            {activeSection === 'add-course' && renderAddCourseSection()}
+            {activeSection === 'add-university' && renderAddUniversitySection()}
+            {activeSection === 'analytics' && renderAnalyticsSection()}
+            {activeSection === 'settings' && renderSettingsSection()}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
