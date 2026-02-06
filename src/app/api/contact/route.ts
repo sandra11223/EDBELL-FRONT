@@ -47,14 +47,14 @@ export async function POST(request: NextRequest) {
       };
       
       console.log('🔄 Attempting to save contact to collection...');
-      const result = await mongoose.connection.db.collection('contacts').insertOne(contactData);
-      console.log('✅ Successfully saved contact to MongoDB:', result.insertedId);
+      const result = await mongoose.connection.db?.collection('contacts').insertOne(contactData);
+      console.log('✅ Successfully saved contact to MongoDB:', result?.insertedId);
       
       return NextResponse.json(
         { 
           message: 'Thank you! Your message has been sent successfully. We will get back to you soon.',
           success: true,
-          contactId: result.insertedId
+          contactId: result?.insertedId
         },
         { status: 200 }
       );
@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
     } catch (dbError) {
       console.error('❌ MongoDB save failed:', dbError);
       console.error('❌ Error details:', {
-        name: dbError.name,
-        message: dbError.message,
-        stack: dbError.stack
+        name: dbError instanceof Error ? dbError.name : 'Unknown',
+        message: dbError instanceof Error ? dbError.message : 'Unknown error',
+        stack: dbError instanceof Error ? dbError.stack : 'No stack trace'
       });
       
       // Return success to user but log the error
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           message: 'Thank you! Your message has been received. We will get back to you soon.',
           success: true,
           note: 'Saved to logs for manual processing',
-          error: dbError.message // Add error for debugging
+          error: dbError instanceof Error ? dbError.message : 'Unknown error' // Add error for debugging
         },
         { status: 200 }
       );

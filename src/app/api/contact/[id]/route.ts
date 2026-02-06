@@ -37,7 +37,7 @@ export async function PATCH(request: NextRequest) {
     
     // Update contact status directly in collection
     const ObjectId = mongoose.Types.ObjectId;
-    const result = await mongoose.connection.db.collection('contacts').updateOne(
+    const result = await mongoose.connection.db?.collection('contacts').updateOne(
       { _id: new ObjectId(id) },
       { 
         $set: { 
@@ -49,7 +49,7 @@ export async function PATCH(request: NextRequest) {
 
     console.log('🔍 Update result:', result);
 
-    if (result.matchedCount === 0) {
+    if (!result || result.matchedCount === 0) {
       return NextResponse.json(
         { error: 'Contact not found' },
         { status: 404 }
@@ -66,7 +66,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     console.error('❌ Update contact status error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
     
     // Get specific contact
     const ObjectId = mongoose.Types.ObjectId;
-    const contact = await mongoose.connection.db.collection('contacts').findOne(
+    const contact = await mongoose.connection.db?.collection('contacts').findOne(
       { _id: new ObjectId(id) }
     );
 
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('❌ Get contact error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

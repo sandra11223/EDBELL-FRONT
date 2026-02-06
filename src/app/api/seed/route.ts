@@ -94,7 +94,7 @@ export async function POST() {
           errors.push(`Course ${course.name}: ${errorText}`);
         }
       } catch (error) {
-        errors.push(`Course ${course.name}: ${error.message}`);
+        errors.push(`Course ${course.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -113,7 +113,7 @@ export async function POST() {
           errors.push(`University ${university.name}: ${errorText}`);
         }
       } catch (error) {
-        errors.push(`University ${university.name}: ${error.message}`);
+        errors.push(`University ${university.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -130,7 +130,7 @@ export async function POST() {
   } catch (error) {
     console.error('Error seeding data:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to seed data', details: error.message },
+      { success: false, error: 'Failed to seed data', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

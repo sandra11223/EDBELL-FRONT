@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
         hour: new Date().getHours()
       };
       
-      const result = await mongoose.connection.db.collection('pageviews').insertOne(pageViewData);
-      console.log('✅ Page view saved to MongoDB:', result.insertedId);
+      const result = await mongoose.connection.db?.collection('pageviews').insertOne(pageViewData);
+      console.log('✅ Page view saved to MongoDB:', result?.insertedId);
       
       return NextResponse.json({
         success: true,
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     console.log(`📊 Fetching analytics for last ${days} days...`);
     
     // Get page views aggregated by page
-    const pageViewsAggregation = await mongoose.connection.db.collection('pageviews').aggregate([
+    const pageViewsAggregation = await mongoose.connection.db?.collection('pageviews').aggregate([
       {
         $match: {
           timestamp: {
@@ -115,19 +115,19 @@ export async function GET(request: NextRequest) {
     ]).toArray();
     
     // Calculate total views
-    const totalViews = pageViewsAggregation.reduce((sum, page) => sum + page.views, 0);
+    const totalViews = pageViewsAggregation?.reduce((sum: number, page: any) => sum + page.views, 0) || 0;
     
     // Add percentage to each page
-    const popularPages = pageViewsAggregation.map(page => ({
+    const popularPages = pageViewsAggregation?.map((page: any) => ({
       page: page.title || page._id,
       path: page._id,
       views: page.views,
       percentage: totalViews > 0 ? Math.round((page.views / totalViews) * 100) : 0,
       lastVisit: page.lastVisit
-    }));
+    })) || [];
     
     // Get daily views for trend analysis
-    const dailyViewsAggregation = await mongoose.connection.db.collection('pageviews').aggregate([
+    const dailyViewsAggregation = await mongoose.connection.db?.collection('pageviews').aggregate([
       {
         $match: {
           timestamp: {
@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
     ]).toArray();
     
     // Get hourly distribution
-    const hourlyViewsAggregation = await mongoose.connection.db.collection('pageviews').aggregate([
+    const hourlyViewsAggregation = await mongoose.connection.db?.collection('pageviews').aggregate([
       {
         $match: {
           timestamp: {

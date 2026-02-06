@@ -345,9 +345,9 @@ const blogPosts: BlogPost[] = [
 ];
 
 interface BlogArticlePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function BlogArticlePage({ params }: BlogArticlePageProps) {

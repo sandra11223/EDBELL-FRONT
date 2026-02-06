@@ -322,9 +322,9 @@ const universities = {
 };
 
 interface UniversityPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: UniversityPageProps): Promise<Metadata> {

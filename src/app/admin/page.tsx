@@ -342,7 +342,7 @@ export default function AdminDashboard() {
         setPageViewsData(analyticsDataResponse);
         
         // Calculate course page views from analytics
-        const courseViews = analyticsDataResponse.popularPages?.find(page => 
+        const courseViews = analyticsDataResponse.popularPages?.find((page: any) => 
           page.path === '/courses' || page.page.toLowerCase().includes('course')
         )?.views || 0;
         
@@ -1579,7 +1579,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => {
                                 setActiveSection('contacts');
-                                setSelectedContact(contactRecord);
+                                setSelectedContact(contactRecord || null);
                               }}
                               className="text-green-600 hover:text-green-900 transition-colors"
                             >
@@ -1908,7 +1908,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold text-blue-600">{websitePages.length}</span>
+                <span className="text-2xl font-bold text-blue-600">8</span>
                 <p className="text-sm text-gray-600">Main Pages</p>
               </div>
             </div>
@@ -1921,21 +1921,21 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Globe className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">{websitePages.length}</h3>
+              <h3 className="text-xl font-semibold text-gray-900">8</h3>
               <p className="text-gray-600">Main Pages</p>
             </div>
             <div className="text-center p-6 bg-purple-50 rounded-lg">
               <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">{coursePages.length}</h3>
+              <h3 className="text-xl font-semibold text-gray-900">6</h3>
               <p className="text-gray-600">Course Pages</p>
             </div>
             <div className="text-center p-6 bg-green-50 rounded-lg">
               <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">{universityPages.length}</h3>
+              <h3 className="text-xl font-semibold text-gray-900">4</h3>
               <p className="text-gray-600">University Pages</p>
             </div>
           </div>
@@ -1968,7 +1968,16 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {websitePages.map((page, index) => (
+                {[
+                  { name: 'Home', path: '/', status: 'Active', lastUpdated: '2024-01-15', description: 'Main landing page with hero section and services overview', icon: <Globe className="h-4 w-4 text-blue-600" /> },
+                  { name: 'About', path: '/about', status: 'Active', lastUpdated: '2024-01-14', description: 'Company information, mission, and team details', icon: <Info className="h-4 w-4 text-blue-600" /> },
+                  { name: 'Courses', path: '/courses', status: 'Active', lastUpdated: '2024-01-13', description: 'Complete course catalog with filtering and details', icon: <BookOpen className="h-4 w-4 text-blue-600" /> },
+                  { name: 'Universities', path: '/universities', status: 'Active', lastUpdated: '2024-01-12', description: 'Partner university listings and information', icon: <GraduationCap className="h-4 w-4 text-blue-600" /> },
+                  { name: 'Services', path: '/services', status: 'Active', lastUpdated: '2024-01-11', description: 'Educational services and offerings', icon: <Briefcase className="h-4 w-4 text-blue-600" /> },
+                  { name: 'Blog', path: '/blog', status: 'Active', lastUpdated: '2024-01-10', description: 'Educational articles and insights', icon: <FileText className="h-4 w-4 text-blue-600" /> },
+                  { name: 'Gallery', path: '/gallery', status: 'Active', lastUpdated: '2024-01-09', description: 'Photo gallery and visual content', icon: <Award className="h-4 w-4 text-blue-600" /> },
+                  { name: 'Contact', path: '/contact', status: 'Active', lastUpdated: '2024-01-08', description: 'Contact form and company information', icon: <MessageCircle className="h-4 w-4 text-blue-600" /> }
+                ].map((page, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -1979,7 +1988,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{page.name}</div>
-                          <div className="text-sm text-gray-500">{page.url}</div>
+                          <div className="text-sm text-gray-500">{page.path}</div>
                         </div>
                       </div>
                     </td>
@@ -1997,14 +2006,14 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <Link
-                          href={page.url}
+                          href={page.path}
                           target="_blank"
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
                         >
                           View
                         </Link>
                         <button
-                          onClick={() => navigator.clipboard.writeText(`${window.location.origin}${page.url}`)}
+                          onClick={() => navigator.clipboard.writeText(`${window.location.origin}${page.path}`)}
                           className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs transition-colors"
                         >
                           Copy URL
@@ -2602,7 +2611,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold text-blue-600">{websitePages.length}</span>
+                <span className="text-2xl font-bold text-blue-600">8</span>
                 <p className="text-sm text-gray-600">Total Pages</p>
               </div>
             </div>
@@ -2611,7 +2620,16 @@ export default function AdminDashboard() {
         
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {websitePages.map((page, index) => (
+            {[
+              { name: 'Home', path: '/', status: 'Active', lastUpdated: '2024-01-15', description: 'Main landing page with hero section and services overview', icon: <Globe className="h-4 w-4 text-blue-600" /> },
+              { name: 'About', path: '/about', status: 'Active', lastUpdated: '2024-01-14', description: 'Company information, mission, and team details', icon: <Info className="h-4 w-4 text-blue-600" /> },
+              { name: 'Courses', path: '/courses', status: 'Active', lastUpdated: '2024-01-13', description: 'Complete course catalog with filtering and details', icon: <BookOpen className="h-4 w-4 text-blue-600" /> },
+              { name: 'Universities', path: '/universities', status: 'Active', lastUpdated: '2024-01-12', description: 'Partner university listings and information', icon: <GraduationCap className="h-4 w-4 text-blue-600" /> },
+              { name: 'Services', path: '/services', status: 'Active', lastUpdated: '2024-01-11', description: 'Educational services and offerings', icon: <Briefcase className="h-4 w-4 text-blue-600" /> },
+              { name: 'Blog', path: '/blog', status: 'Active', lastUpdated: '2024-01-10', description: 'Educational articles and insights', icon: <FileText className="h-4 w-4 text-blue-600" /> },
+              { name: 'Gallery', path: '/gallery', status: 'Active', lastUpdated: '2024-01-09', description: 'Photo gallery and visual content', icon: <Award className="h-4 w-4 text-blue-600" /> },
+              { name: 'Contact', path: '/contact', status: 'Active', lastUpdated: '2024-01-08', description: 'Contact form and company information', icon: <MessageCircle className="h-4 w-4 text-blue-600" /> }
+            ].map((page, index) => (
               <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -2619,7 +2637,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{page.name}</h3>
-                    <p className="text-sm text-gray-500">{page.url}</p>
+                    <p className="text-sm text-gray-500">{page.path}</p>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{page.description}</p>
@@ -2631,14 +2649,14 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => window.open(page.url, '_blank')}
+                    onClick={() => window.open(page.path, '_blank')}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center space-x-1"
                   >
                     <Globe className="h-4 w-4" />
                     <span>Visit Page</span>
                   </button>
                   <button
-                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${page.url}`)}
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${page.path}`)}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition-colors"
                     title="Copy URL"
                   >
@@ -2705,7 +2723,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold text-purple-600">{coursePages.length}</span>
+                <span className="text-2xl font-bold text-purple-600">6</span>
                 <p className="text-sm text-gray-600">Course Pages</p>
               </div>
             </div>
@@ -2714,7 +2732,14 @@ export default function AdminDashboard() {
         
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {coursePages.map((course, index) => (
+            {[
+              { name: 'Bachelor of Arts', path: '/courses/bachelor-of-arts', status: 'Active', lastUpdated: '2024-01-15', description: 'Comprehensive liberal arts program', category: 'Undergraduate', duration: '3 Years', icon: <BookOpen className="h-4 w-4 text-purple-600" /> },
+              { name: 'Bachelor of Commerce', path: '/courses/bachelor-of-commerce', status: 'Active', lastUpdated: '2024-01-14', description: 'Business-focused undergraduate program', category: 'Undergraduate', duration: '3 Years', icon: <BookOpen className="h-4 w-4 text-purple-600" /> },
+              { name: 'Bachelor of Business Administration', path: '/courses/bachelor-of-business-administration', status: 'Active', lastUpdated: '2024-01-13', description: 'Management and leadership program', category: 'Undergraduate', duration: '3 Years', icon: <BookOpen className="h-4 w-4 text-purple-600" /> },
+              { name: 'Master of Arts', path: '/courses/master-of-arts', status: 'Active', lastUpdated: '2024-01-12', description: 'Advanced humanities studies', category: 'Postgraduate', duration: '2 Years', icon: <BookOpen className="h-4 w-4 text-purple-600" /> },
+              { name: 'Master of Business Administration', path: '/courses/master-of-business-administration', status: 'Active', lastUpdated: '2024-01-11', description: 'Executive management program', category: 'Postgraduate', duration: '2 Years', icon: <BookOpen className="h-4 w-4 text-purple-600" /> },
+              { name: 'Master of Commerce', path: '/courses/master-of-commerce', status: 'Active', lastUpdated: '2024-01-10', description: 'Advanced commerce studies', category: 'Postgraduate', duration: '2 Years', icon: <BookOpen className="h-4 w-4 text-purple-600" /> }
+            ].map((course, index) => (
               <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -2722,7 +2747,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{course.name}</h3>
-                    <p className="text-sm text-gray-500">{course.url}</p>
+                    <p className="text-sm text-gray-500">{course.path}</p>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
@@ -2738,14 +2763,14 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => window.open(course.url, '_blank')}
+                    onClick={() => window.open(course.path, '_blank')}
                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center space-x-1"
                   >
                     <BookOpen className="h-4 w-4" />
                     <span>View Course</span>
                   </button>
                   <button
-                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${course.url}`)}
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${course.path}`)}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition-colors"
                     title="Copy URL"
                   >
@@ -2772,7 +2797,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold text-green-600">{universityPages.length}</span>
+                <span className="text-2xl font-bold text-green-600">4</span>
                 <p className="text-sm text-gray-600">University Pages</p>
               </div>
             </div>
@@ -2781,7 +2806,12 @@ export default function AdminDashboard() {
         
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {universityPages.map((university, index) => (
+            {[
+              { name: 'IGNOU', path: '/universities/ignou', status: 'Active', lastUpdated: '2024-01-15', description: 'Indira Gandhi National Open University', location: 'New Delhi', accreditation: 'NAAC A++', established: '1985', icon: <GraduationCap className="h-4 w-4 text-green-600" /> },
+              { name: 'LPU', path: '/universities/lpu', status: 'Active', lastUpdated: '2024-01-14', description: 'Lovely Professional University', location: 'Punjab', accreditation: 'NAAC A+', established: '2005', icon: <GraduationCap className="h-4 w-4 text-green-600" /> },
+              { name: 'Amity University', path: '/universities/amity-university', status: 'Active', lastUpdated: '2024-01-13', description: 'Leading private university', location: 'Noida', accreditation: 'NAAC A+', established: '2005', icon: <GraduationCap className="h-4 w-4 text-green-600" /> },
+              { name: 'Chandigarh University', path: '/universities/chandigarh-university', status: 'Active', lastUpdated: '2024-01-12', description: 'Innovative education provider', location: 'Punjab', accreditation: 'NAAC A+', established: '2012', icon: <GraduationCap className="h-4 w-4 text-green-600" /> }
+            ].map((university, index) => (
               <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -2789,7 +2819,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{university.name}</h3>
-                    <p className="text-sm text-gray-500">{university.url}</p>
+                    <p className="text-sm text-gray-500">{university.path}</p>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{university.description}</p>
@@ -2805,14 +2835,14 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => window.open(university.url, '_blank')}
+                    onClick={() => window.open(university.path, '_blank')}
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center space-x-1"
                   >
                     <GraduationCap className="h-4 w-4" />
                     <span>View University</span>
                   </button>
                   <button
-                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${university.url}`)}
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${university.path}`)}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition-colors"
                     title="Copy URL"
                   >
