@@ -599,6 +599,19 @@ For more information and admission details, contact us today!
                     ))}
                   </div>
                 </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">{year.year}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {year.subjects.map((subject, subIndex) => (
+                            <div key={subIndex} className="flex items-center space-x-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-gray-700">{subject}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Specializations */}
                 <div className="mb-12">
