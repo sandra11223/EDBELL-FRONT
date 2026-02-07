@@ -1025,14 +1025,28 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => {
-                    fetchContacts();
-                    fetchAnalyticsData();
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      await Promise.all([
+                        fetchContacts(),
+                        fetchAnalyticsData()
+                      ]);
+                    } catch (error) {
+                      console.error('Error refreshing data:', error);
+                    } finally {
+                      setLoading(false);
+                    }
                   }}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                  disabled={loading}
+                  className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm transition-colors ${
+                    loading 
+                      ? 'bg-gray-400 cursor-not-allowed text-white' 
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
                 >
-                  <BarChart3 className="h-4 w-4" />
-                  <span>Refresh</span>
+                  <BarChart3 className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
                 </button>
                 <Filter className="h-4 w-4 text-gray-400" />
                 <select
@@ -1400,14 +1414,28 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => {
-                  fetchAnalyticsData();
-                  fetchContacts();
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    await Promise.all([
+                      fetchAnalyticsData(),
+                      fetchContacts()
+                    ]);
+                  } catch (error) {
+                    console.error('Error refreshing subscriber data:', error);
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
-                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                disabled={loading}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                  loading 
+                    ? 'bg-gray-400 cursor-not-allowed text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
               >
-                <BarChart3 className="h-4 w-4" />
-                <span>Refresh Data</span>
+                <BarChart3 className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>{loading ? 'Refreshing...' : 'Refresh Data'}</span>
               </button>
               <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
                 <span className="text-2xl font-bold text-blue-600">{subscriptions.length}</span>
@@ -3706,10 +3734,10 @@ export default function AdminDashboard() {
           ></div>
         )}
 
-        {/* Sidebar */}
+        {/* Sidebar - Fixed on all screen sizes */}
         <div className={`${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-50 w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col h-full lg:h-auto`}>
+        } fixed lg:translate-x-0 transition-transform duration-300 ease-in-out z-50 w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col h-screen`}>
           {/* Sidebar Header */}
           <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
             <div className="flex items-center justify-between">
@@ -3745,7 +3773,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             <div className="mb-4">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main Menu</h3>
             </div>
@@ -3798,10 +3826,10 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Top Header */}
-          <div className="bg-white shadow-sm border-b border-gray-200">
+        {/* Main Content Area - Add left margin to account for fixed sidebar */}
+        <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+          {/* Top Header - Fixed at top */}
+          <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
             <div className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">

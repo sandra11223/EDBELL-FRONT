@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, CheckCircle, Loader2, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Mail, CheckCircle, Loader2, Zap, LogIn } from 'lucide-react';
 
 interface NewsletterProps {
   variant?: 'default' | 'compact' | 'sidebar';
@@ -9,11 +10,26 @@ interface NewsletterProps {
 }
 
 export default function Newsletter({ variant = 'default', className = '' }: NewsletterProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [message, setMessage] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const loggedIn = localStorage.getItem('isLoggedIn');
+      const userEmail = localStorage.getItem('userEmail');
+      
+      if (loggedIn === 'true' && userEmail) {
+        setIsAuthenticated(true);
+        setEmail(userEmail);
+      }
+    }
+  }, []);
 
   // Check for URL parameters to pre-fill the form
   useEffect(() => {
@@ -23,22 +39,28 @@ export default function Newsletter({ variant = 'default', className = '' }: News
       const urlName = urlParams.get('name');
       const subscribe = urlParams.get('subscribe');
       
-      if (urlEmail) {
+      if (urlEmail && isAuthenticated) {
         setEmail(decodeURIComponent(urlEmail));
       }
-      if (urlName) {
+      if (urlName && isAuthenticated) {
         setName(decodeURIComponent(urlName));
       }
       
       // If subscribe=true is in URL, show a message
-      if (subscribe === 'true') {
+      if (subscribe === 'true' && isAuthenticated) {
         setMessage('Complete your newsletter subscription below:');
       }
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user is logged in
+    if (!isAuthenticated) {
+      setMessage('Please login to subscribe to our newsletter');
+      return;
+    }
     
     if (!email) {
       setMessage('Please enter your email address');
@@ -74,6 +96,10 @@ export default function Newsletter({ variant = 'default', className = '' }: News
     }
   };
 
+  const handleLoginRedirect = () => {
+    router.push('/login');
+  };
+
   if (variant === 'compact') {
     return (
       <div className={`bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-6 text-white ${className}`}>
@@ -88,7 +114,18 @@ export default function Newsletter({ variant = 'default', className = '' }: News
           Get educational insights delivered to your inbox
         </p>
 
-        {isSubscribed ? (
+        {!isAuthenticated ? (
+          <div className="text-center space-y-3">
+            <p className="text-blue-100 text-sm mb-3">Please login to subscribe to our newsletter</p>
+            <button
+              onClick={handleLoginRedirect}
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-blue-900 font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Please Login to Subscribe
+            </button>
+          </div>
+        ) : isSubscribed ? (
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500 rounded-full mb-3">
               <CheckCircle className="h-6 w-6 text-white" />
@@ -139,7 +176,18 @@ export default function Newsletter({ variant = 'default', className = '' }: News
           <p className="text-gray-600 text-sm">Stay updated with latest insights</p>
         </div>
 
-        {isSubscribed ? (
+        {!isAuthenticated ? (
+          <div className="text-center space-y-3">
+            <p className="text-gray-600 text-sm mb-3">Please login to subscribe to our newsletter</p>
+            <button
+              onClick={handleLoginRedirect}
+              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-sm"
+            >
+              <LogIn className="h-3 w-3 mr-2" />
+              Please Login to Subscribe
+            </button>
+          </div>
+        ) : isSubscribed ? (
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500 rounded-full mb-3">
               <CheckCircle className="h-6 w-6 text-white" />
@@ -204,7 +252,24 @@ export default function Newsletter({ variant = 'default', className = '' }: News
           Get the latest educational insights, career tips, and study abroad opportunities delivered to your inbox.
         </p>
 
-        {isSubscribed ? (
+        {!isAuthenticated ? (
+          <div className="text-center space-y-4 max-w-md mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <LogIn className="h-12 w-12 mx-auto mb-3 text-yellow-300" />
+              <p className="text-white text-lg mb-4">Please login to subscribe to our newsletter</p>
+              <p className="text-blue-100 text-sm mb-4">
+                Get exclusive access to educational insights, career tips, and study abroad opportunities.
+              </p>
+            </div>
+            <button
+              onClick={handleLoginRedirect}
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-blue-900 font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center"
+            >
+              <LogIn className="h-5 w-5 mr-2" />
+              Please Login to Subscribe
+            </button>
+          </div>
+        ) : isSubscribed ? (
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4 animate-bounce">
               <CheckCircle className="h-8 w-8 text-white" />

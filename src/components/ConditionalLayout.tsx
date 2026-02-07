@@ -25,7 +25,7 @@ export default function ConditionalLayout({
     <>
       <Analytics />
       <Header />
-      <main className="min-h-screen">
+      <main className="min-h-screen pt-16 lg:pt-20">
         {children}
       </main>
       <Footer />

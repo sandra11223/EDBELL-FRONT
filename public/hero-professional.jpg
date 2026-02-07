@@ -1,0 +1,30 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="100" cy="100" r="60" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="700" cy="500" r="80" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="400" cy="300" r="120" fill="rgba(255,255,255,0.05)"/>
+  
+  <!-- Main content -->
+  <rect x="200" y="150" width="400" height="300" rx="20" fill="rgba(255,255,255,0.15)"/>
+  
+  <!-- Icon placeholder -->
+  <circle cx="400" cy="250" r="50" fill="rgba(255,255,255,0.3)"/>
+  <path d="M 400 220 L 400 280 M 370 250 L 430 250" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Text -->
+  <text x="400" y="350" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">EDBELL</text>
+  <text x="400" y="390" font-family="Arial, sans-serif" font-size="20" fill="rgba(255,255,255,0.9)" text-anchor="middle">Professional Image Placeholder</text>
+  <text x="400" y="480" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.8)" text-anchor="middle">Replace this file with your professional photo</text>
+  <text x="400" y="510" font-family="Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.7)" text-anchor="middle">Save your image as: hero-professional.jpg</text>
+</svg>

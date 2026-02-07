@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Newsletter from '@/components/Newsletter';
-import { MapPin, Phone, Mail, Clock, Send, Facebook, Instagram, MessageCircle, CheckCircle, AlertCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, Facebook, Instagram, MessageCircle, CheckCircle, AlertCircle, LogIn } from 'lucide-react';
 
 export default function Contact() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,6 +26,24 @@ export default function Contact() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const loggedIn = localStorage.getItem('isLoggedIn');
+      const userEmail = localStorage.getItem('userEmail');
+      
+      if (loggedIn === 'true' && userEmail) {
+        setIsAuthenticated(true);
+        // Pre-fill email for logged-in users
+        setFormData(prev => ({
+          ...prev,
+          email: userEmail
+        }));
+      }
+    }
+  }, []);
 
   // Handle URL parameters for service-specific inquiries
   useEffect(() => {
@@ -31,7 +51,7 @@ export default function Contact() {
     const service = urlParams.get('service');
     const inquiry = urlParams.get('inquiry');
     
-    if (service) {
+    if (service && isAuthenticated) {
       const serviceMap: { [key: string]: string } = {
         'career-counseling': 'Career Counseling',
         'study-abroad-services': 'Study Abroad Services',
@@ -60,10 +80,18 @@ export default function Contact() {
         message: message
       }));
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user is logged in
+    if (!isAuthenticated) {
+      alert('Please login to send a message');
+      router.push('/login');
+      return;
+    }
+    
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
@@ -109,6 +137,10 @@ export default function Contact() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleLoginRedirect = () => {
+    router.push('/login');
   };
 
   const contactInfo = [
@@ -326,16 +358,28 @@ export default function Contact() {
                 </div>
 
                 <button
-                  type="submit"
+                  type={isAuthenticated ? "submit" : "button"}
+                  onClick={!isAuthenticated ? handleLoginRedirect : undefined}
                   disabled={isSubmitting}
                   className={`btn w-full ${
                     isSubmitting 
                       ? 'bg-gray-400 cursor-not-allowed' 
+                      : !isAuthenticated
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white'
                       : 'btn-primary'
                   }`}
                 >
-                  <Send className="mr-2 h-5 w-5" />
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {!isAuthenticated ? (
+                    <>
+                      <LogIn className="mr-2 h-5 w-5" />
+                      Please Login to Send Message
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-5 w-5" />
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </>
+                  )}
                 </button>
 
                 {submitStatus === 'success' && (

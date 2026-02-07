@@ -62,42 +62,114 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section with Storytelling Design */}
-      <section className="relative min-h-[70vh] bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 overflow-hidden flex items-center">
-        {/* Particle Background */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50">
+      {/* Unique Hero Section for About Page - Blue Theme */}
+      <section className="relative min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-cyan-900 overflow-hidden">
+        {/* Animated Background Pattern */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:30px_30px] animate-pulse"></div>
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-400/25 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-3/4 left-3/4 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.3),transparent_50%)]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.3),transparent_50%)]"></div>
+          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
         </div>
-        
-        <div className="relative container mx-auto px-4">
-          <div className="max-w-6xl mx-auto text-center">
-            {/* Animated Logo */}
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-8 transform hover:scale-110 hover:rotate-12 transition-all duration-500 cursor-pointer shadow-2xl animate-bounce">
-              <Users className="h-12 w-12 text-white" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          {/* Top Badge */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-full px-8 py-4 border border-blue-400/30 shadow-2xl">
+              <Globe className="h-6 w-6 text-cyan-300 mr-3 animate-spin" />
+              <span className="text-white font-semibold text-lg">Transforming Education Since 2024</span>
             </div>
-            
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-              Our
-              <span className="block text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text animate-pulse">
-                Journey
-              </span>
-            </h1>
-            
-            <p className="text-xl sm:text-2xl text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed">
-              From a vision in Kerala to empowering 
-              <span className="text-cyan-400 font-bold"> 25,000+ students</span> across India
-            </p>
-            
-            {/* Scroll Indicator */}
-            <div className="animate-bounce">
-              <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-                <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* Left Column - Image 1 */}
+            <div className="relative group">
+              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-3xl p-6 border border-blue-400/30 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
+                <div className="w-full h-80 bg-gradient-to-br from-blue-400 via-indigo-500 to-cyan-500 rounded-2xl relative overflow-hidden shadow-2xl">
+                  <img 
+                    src="/about-team.jpg" 
+                    alt="EDBELL Team" 
+                    className="w-full h-full object-cover rounded-2xl transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 via-transparent to-transparent"></div>
+                </div>
               </div>
-              <p className="text-white/70 text-sm mt-2">Scroll to explore our story</p>
+              {/* Floating Badge */}
+              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl p-3 shadow-2xl animate-bounce">
+                <Users className="h-6 w-6" />
+              </div>
+            </div>
+
+            {/* Center Column - Main Content */}
+            <div className="text-center text-white space-y-6">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight">
+                <span className="block text-transparent bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text animate-pulse">
+                  Who We Are
+                </span>
+              </h1>
+              
+              <p className="text-2xl text-blue-100 leading-relaxed max-w-2xl mx-auto">
+                EDBELL EDUSOLUTIONS LLP - Your trusted partner in quality education and career success
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto pt-8">
+                <div className="bg-gradient-to-br from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-2xl p-6 border border-blue-400/30 transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl font-black text-white mb-2">25K+</div>
+                  <div className="text-cyan-200 text-sm">Students</div>
+                </div>
+                <div className="bg-gradient-to-br from-cyan-500/30 to-indigo-500/30 backdrop-blur-sm rounded-2xl p-6 border border-cyan-400/30 transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl font-black text-white mb-2">50+</div>
+                  <div className="text-cyan-200 text-sm">Universities</div>
+                </div>
+                <div className="bg-gradient-to-br from-indigo-500/30 to-blue-500/30 backdrop-blur-sm rounded-2xl p-6 border border-indigo-400/30 transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl font-black text-white mb-2">95%</div>
+                  <div className="text-blue-200 text-sm">Success Rate</div>
+                </div>
+                <div className="bg-gradient-to-br from-cyan-500/30 to-blue-500/30 backdrop-blur-sm rounded-2xl p-6 border border-cyan-400/30 transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl font-black text-white mb-2">100%</div>
+                  <div className="text-cyan-200 text-sm">UGC Approved</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Image 2 */}
+            <div className="relative group">
+              <div className="bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 backdrop-blur-lg rounded-3xl p-6 border border-cyan-400/30 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
+                <div className="w-full h-80 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-500 rounded-2xl relative overflow-hidden shadow-2xl">
+                  <img 
+                    src="/about-campus.jpg" 
+                    alt="EDBELL Campus" 
+                    className="w-full h-full object-cover rounded-2xl transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/50 via-transparent to-transparent"></div>
+                </div>
+              </div>
+              {/* Floating Badge */}
+              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-cyan-500 to-indigo-500 text-white rounded-xl p-3 shadow-2xl animate-bounce delay-300">
+                <Award className="h-6 w-6" />
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl p-6 border border-blue-400/30 text-center transform hover:scale-105 transition-all duration-300">
+              <Shield className="h-12 w-12 text-cyan-300 mx-auto mb-4" />
+              <h3 className="text-white font-bold text-xl mb-2">UGC Approved</h3>
+              <p className="text-blue-200">All programs are UGC-DEB approved and recognized nationwide</p>
+            </div>
+            <div className="bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 backdrop-blur-lg rounded-2xl p-6 border border-cyan-400/30 text-center transform hover:scale-105 transition-all duration-300">
+              <Target className="h-12 w-12 text-cyan-300 mx-auto mb-4" />
+              <h3 className="text-white font-bold text-xl mb-2">Career Focused</h3>
+              <p className="text-cyan-200">Comprehensive career guidance and placement support</p>
+            </div>
+            <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 backdrop-blur-lg rounded-2xl p-6 border border-indigo-400/30 text-center transform hover:scale-105 transition-all duration-300">
+              <Zap className="h-12 w-12 text-blue-300 mx-auto mb-4" />
+              <h3 className="text-white font-bold text-xl mb-2">Fast Track</h3>
+              <p className="text-indigo-200">Flexible online programs that fit your schedule</p>
             </div>
           </div>
         </div>
@@ -253,73 +325,6 @@ export default function About() {
                 <p className="text-gray-600 leading-relaxed">{value.description}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 shadow-2xl">
-              <Calendar className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6">Our Journey</h2>
-            <p className="text-xl text-gray-600">
-              Key milestones in our growth and development
-            </p>
-          </div>
-          
-          <div className="relative max-w-4xl mx-auto">
-            <div className="absolute left-1/2 transform -translate-x-px h-full w-0.5 bg-gradient-to-b from-blue-500 to-blue-600"></div>
-            <div className="space-y-12">
-              {timeline.map((item, index) => (
-                <div key={index} className={`relative flex items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`w-5/12 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                    <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border border-gray-100 group transform hover:scale-105 hover:-translate-y-2">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <Calendar className="h-4 w-4 text-blue-600" />
-                        <span className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">{item.year}</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">{item.title}</h3>
-                      <p className="text-gray-600 leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                  <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full border-4 border-white shadow-lg"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Leadership */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 shadow-2xl">
-              <Users className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6">Our Leadership</h2>
-            <p className="text-xl text-gray-600">
-              Meet the visionary leader driving our mission forward
-            </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 p-12 text-center border border-gray-100 group transform hover:scale-105 hover:-translate-y-2">
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-2xl">
-                <Users className="h-16 w-16 text-white" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">Adv. Arif Wafy Varambatta</h3>
-              <p className="text-xl text-blue-600 mb-8 font-semibold">Managing Director</p>
-              <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed text-lg">
-                A visionary leader with extensive experience in education and legal practice, 
-                Adv. Arif Wafy Varambatta brings a unique perspective to educational services. 
-                His commitment to ethical practices and student welfare has been instrumental 
-                in establishing EDBELL EDUSOLUTIONS as a trusted name in online education.
-              </p>
-            </div>
           </div>
         </div>
       </section>

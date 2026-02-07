@@ -172,7 +172,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -182,62 +182,62 @@ export default async function CoursePage({ params }: CoursePageProps) {
                   Back to Courses
                 </Link>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">{course.title}</h1>
-              <p className="text-xl text-blue-100 mb-6">{course.description}</p>
+              <h1 className="text-3xl md:text-4xl font-bold mb-3">{course.title}</h1>
+              <p className="text-lg text-blue-100 mb-4">{course.description}</p>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 <div className="text-center">
-                  <Clock className="h-6 w-6 mx-auto mb-2" />
-                  <div className="text-sm text-blue-200">Duration</div>
-                  <div className="font-semibold">{course.duration}</div>
+                  <Clock className="h-5 w-5 mx-auto mb-1" />
+                  <div className="text-xs text-blue-200">Duration</div>
+                  <div className="text-sm font-semibold">{course.duration}</div>
                 </div>
                 <div className="text-center">
-                  <BookOpen className="h-6 w-6 mx-auto mb-2" />
-                  <div className="text-sm text-blue-200">Mode</div>
-                  <div className="font-semibold">{course.mode}</div>
+                  <BookOpen className="h-5 w-5 mx-auto mb-1" />
+                  <div className="text-xs text-blue-200">Mode</div>
+                  <div className="text-sm font-semibold">{course.mode}</div>
                 </div>
                 <div className="text-center">
-                  <Users className="h-6 w-6 mx-auto mb-2" />
-                  <div className="text-sm text-blue-200">Students</div>
-                  <div className="font-semibold">{course.studentsEnrolled}+</div>
+                  <Users className="h-5 w-5 mx-auto mb-1" />
+                  <div className="text-xs text-blue-200">Students</div>
+                  <div className="text-sm font-semibold">{course.studentsEnrolled}+</div>
                 </div>
                 <div className="text-center">
-                  <Star className="h-6 w-6 mx-auto mb-2" />
-                  <div className="text-sm text-blue-200">Rating</div>
-                  <div className="font-semibold">{course.rating}/5</div>
+                  <Star className="h-5 w-5 mx-auto mb-1" />
+                  <div className="text-xs text-blue-200">Rating</div>
+                  <div className="text-sm font-semibold">{course.rating}/5</div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="tel:+919876543210" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a href="tel:+919876543210" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm">
                   Enroll Now
                 </a>
-                <button className="bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                  <Download className="mr-2 h-5 w-5" />
+                <button className="bg-white/20 hover:bg-white/30 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm">
+                  <Download className="mr-2 h-4 w-4" />
                   Download Brochure
                 </button>
               </div>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h3 className="text-2xl font-bold mb-6">Course Highlights</h3>
-              <div className="space-y-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-bold mb-4">Course Highlights</h3>
+              <div className="space-y-3">
                 {course.features.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                    <span>{feature}</span>
+                  <div key={index} className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <span className="text-sm">{feature}</span>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 pt-6 border-t border-white/20">
+              <div className="mt-4 pt-4 border-t border-white/20">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-blue-200">Course Fee</div>
-                    <div className="text-2xl font-bold">{course.fee}</div>
+                    <div className="text-xs text-blue-200">Course Fee</div>
+                    <div className="text-lg font-bold">{course.fee}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-blue-200">Placement Rate</div>
-                    <div className="text-2xl font-bold">{course.placementRate}</div>
+                    <div className="text-xs text-blue-200">Placement Rate</div>
+                    <div className="text-lg font-bold">{course.placementRate}</div>
                   </div>
                 </div>
               </div>
@@ -247,33 +247,33 @@ export default async function CoursePage({ params }: CoursePageProps) {
       </section>
 
       {/* Course Details */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
               {/* About Course */}
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">About This Course</h2>
-                <p className="text-lg text-gray-700 mb-6">{course.detailedDescription}</p>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">About This Course</h2>
+                <p className="text-base text-gray-700 mb-4">{course.detailedDescription}</p>
                 
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Eligibility Criteria</h3>
-                  <p className="text-gray-700">{course.eligibility}</p>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Eligibility Criteria</h3>
+                  <p className="text-sm text-gray-700">{course.eligibility}</p>
                 </div>
               </div>
 
               {/* Curriculum */}
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Curriculum</h2>
-                <div className="space-y-6">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Curriculum</h2>
+                <div className="space-y-4">
                   {course.curriculum.map((year, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">{year.year}</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">{year.year}</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {year.subjects.map((subject, subIndex) => (
                           <div key={subIndex} className="flex items-center space-x-2">
-                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            <span className="text-gray-700">{subject}</span>
+                            <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                            <span className="text-sm text-gray-700">{subject}</span>
                           </div>
                         ))}
                       </div>
@@ -283,31 +283,31 @@ export default async function CoursePage({ params }: CoursePageProps) {
               </div>
 
               {/* Specializations */}
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Specializations</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Specializations</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {course.specializations.map((spec, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{spec.name}</h3>
-                      <p className="text-gray-600">{spec.description}</p>
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <h3 className="text-base font-semibold text-gray-900 mb-2">{spec.name}</h3>
+                      <p className="text-sm text-gray-600">{spec.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Career Opportunities */}
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Career Opportunities</h2>
-                <div className="space-y-6">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Career Opportunities</h2>
+                <div className="space-y-4">
                   {course.careerOptions.map((career, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900">{career.title}</h3>
-                        <span className="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-semibold text-gray-900">{career.title}</h3>
+                        <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
                           {career.salary}
                         </span>
                       </div>
-                      <p className="text-gray-600">{career.description}</p>
+                      <p className="text-sm text-gray-600">{career.description}</p>
                     </div>
                   ))}
                 </div>
@@ -315,66 +315,66 @@ export default async function CoursePage({ params }: CoursePageProps) {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Quick Info */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Information</h3>
-                <div className="space-y-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Quick Information</h3>
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Duration</span>
-                    <span className="font-semibold">{course.duration}</span>
+                    <span className="text-sm text-gray-600">Duration</span>
+                    <span className="text-sm font-semibold">{course.duration}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Mode</span>
-                    <span className="font-semibold">{course.mode}</span>
+                    <span className="text-sm text-gray-600">Mode</span>
+                    <span className="text-sm font-semibold">{course.mode}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Total Fee</span>
-                    <span className="font-semibold">{course.totalFee}</span>
+                    <span className="text-sm text-gray-600">Total Fee</span>
+                    <span className="text-sm font-semibold">{course.totalFee}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Students Enrolled</span>
-                    <span className="font-semibold">{course.studentsEnrolled}+</span>
+                    <span className="text-sm text-gray-600">Students Enrolled</span>
+                    <span className="text-sm font-semibold">{course.studentsEnrolled}+</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Placement Rate</span>
-                    <span className="font-semibold text-green-600">{course.placementRate}</span>
+                    <span className="text-sm text-gray-600">Placement Rate</span>
+                    <span className="text-sm font-semibold text-green-600">{course.placementRate}</span>
                   </div>
                 </div>
               </div>
 
               {/* Universities */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Partner Universities</h3>
-                <div className="space-y-3">
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Partner Universities</h3>
+                <div className="space-y-2">
                   {course.universities.map((university, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <Award className="h-4 w-4 text-blue-600" />
-                      <span className="text-gray-700">{university}</span>
+                    <div key={index} className="flex items-center space-x-2">
+                      <Award className="h-3 w-3 text-blue-600" />
+                      <span className="text-sm text-gray-700">{university}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Contact */}
-              <div className="bg-blue-600 text-white rounded-lg p-6">
-                <h3 className="text-xl font-semibold mb-4">Need Help?</h3>
-                <p className="text-blue-100 mb-4">
+              <div className="bg-blue-600 text-white rounded-lg p-4">
+                <h3 className="text-lg font-semibold mb-3">Need Help?</h3>
+                <p className="text-sm text-blue-100 mb-3">
                   Get personalized guidance from our education counselors.
                 </p>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <a
                     href="tel:+919876543210"
-                    className="w-full bg-white text-blue-600 hover:bg-gray-100 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+                    className="w-full bg-white text-blue-600 hover:bg-gray-100 font-semibold py-2 px-3 rounded-lg transition-colors flex items-center justify-center text-sm"
                   >
-                    <Phone className="mr-2 h-4 w-4" />
+                    <Phone className="mr-2 h-3 w-3" />
                     Call Now
                   </a>
                   <a
                     href="mailto:info@edbelledusolutions.com"
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold py-2 px-3 rounded-lg transition-colors flex items-center justify-center text-sm"
                   >
-                    <Mail className="mr-2 h-4 w-4" />
+                    <Mail className="mr-2 h-3 w-3" />
                     Get Counseling
                   </a>
                 </div>

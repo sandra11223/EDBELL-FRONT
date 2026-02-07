@@ -10,6 +10,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -21,6 +22,17 @@ const Header = () => {
         setUserEmail(email);
       }
     }
+  }, []);
+
+  // Handle scroll effect for fixed header
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleLogout = () => {
@@ -43,7 +55,11 @@ const Header = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm mobile-safe-area">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 mobile-safe-area ${
+      isScrolled 
+        ? 'bg-white/98 backdrop-blur-md border-b border-gray-200 shadow-lg' 
+        : 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm'
+    }`}>
       <div className="mobile-container">
         <div className="flex justify-between items-center h-16 lg:h-20">
           {/* Logo */}
@@ -135,12 +151,12 @@ const Header = () => {
           <>
             {/* Backdrop */}
             <div 
-              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[55] transition-opacity duration-300"
               onClick={() => setIsMenuOpen(false)}
             />
             
             {/* Mobile Menu Panel */}
-            <div className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 transform transition-transform duration-300 mobile-safe-area">
+            <div className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-[60] transform transition-transform duration-300 mobile-safe-area">
               <div className="flex flex-col h-full">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-100">

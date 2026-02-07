@@ -65,10 +65,10 @@ export default function Login() {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-          Admin Login
+          Welcome to EDBELL
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Access your admin dashboard
+          Admin login or explore our educational services
         </p>
       </div>
 
@@ -183,12 +183,31 @@ export default function Login() {
                 )}
               </button>
             </div>
+
+            {/* Signup Button */}
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-center text-sm text-gray-600 mb-3">
+                Don't have an account?
+              </p>
+              <Link
+                href="/signup"
+                className="group relative w-full flex justify-center py-3 px-4 border-2 border-blue-600 text-sm font-semibold rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              >
+                <User className="h-5 w-5 mr-2" />
+                Sign Up Now
+              </Link>
+              <p className="text-center text-xs text-gray-500 mt-2">
+                Create an account to access all features
+              </p>
+            </div>
           </form>
 
-          <div className="mt-6 text-center">
-            <Link href="/" className="text-sm text-blue-600 hover:text-blue-500">
-              ← Back to Home
-            </Link>
+          <div className="mt-6">
+            <div className="text-center">
+              <Link href="/" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                ← Back to Home
+              </Link>
+            </div>
           </div>
         </div>
       </div>
