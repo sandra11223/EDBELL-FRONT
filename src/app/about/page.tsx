@@ -63,113 +63,96 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50">
-      {/* Unique Hero Section for About Page - Blue Theme */}
-      <section className="relative min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-cyan-900 overflow-hidden">
-        {/* Animated Background Pattern */}
+      {/* Hero Section - Same as Home Page */}
+      <section className="relative bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 min-h-[85vh] flex items-center overflow-hidden py-16">
+        {/* Light Animated Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.3),transparent_50%)]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.3),transparent_50%)]"></div>
-          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.1),transparent_50%)]"></div>
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl animate-pulse transform-gpu"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-cyan-200/30 rounded-full blur-3xl animate-pulse delay-1000 transform-gpu"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-200/20 rounded-full blur-3xl animate-pulse delay-500 transform-gpu"></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          {/* Top Badge */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-full px-8 py-4 border border-blue-400/30 shadow-2xl">
-              <Globe className="h-6 w-6 text-cyan-300 mr-3 animate-spin" />
-              <span className="text-white font-semibold text-lg">Transforming Education Since 2024</span>
-            </div>
-          </div>
-
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left Column - Image 1 */}
-            <div className="relative group">
-              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-3xl p-6 border border-blue-400/30 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
-                <div className="w-full h-80 bg-gradient-to-br from-blue-400 via-indigo-500 to-cyan-500 rounded-2xl relative overflow-hidden shadow-2xl">
-                  <img 
-                    src="/about-team.jpg" 
-                    alt="EDBELL Team" 
-                    className="w-full h-full object-cover rounded-2xl transform group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 via-transparent to-transparent"></div>
-                </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+            {/* Left Content - Takes 3 columns */}
+            <div className="lg:col-span-3 text-gray-900 text-center lg:text-left">
+              <div className="inline-flex items-center bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 mb-6 border border-blue-200 shadow-lg">
+                <span className="text-sm font-medium text-blue-900">🎓 Transforming Education Since 2024</span>
               </div>
-              {/* Floating Badge */}
-              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl p-3 shadow-2xl animate-bounce">
-                <Users className="h-6 w-6" />
-              </div>
-            </div>
-
-            {/* Center Column - Main Content */}
-            <div className="text-center text-white space-y-6">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight">
-                <span className="block text-transparent bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text animate-pulse">
-                  Who We Are
+              
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight">
+                <span className="text-gray-900">About</span>
+                <span className="block text-transparent bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 bg-clip-text">
+                  EDBELL EDUSOLUTIONS
                 </span>
               </h1>
-              
-              <p className="text-2xl text-blue-100 leading-relaxed max-w-2xl mx-auto">
-                Your trusted partner in quality education
+              <p className="text-base sm:text-lg text-gray-700 mb-8 leading-relaxed">
+                Your trusted partner in quality education, empowering students with UGC-approved programs and comprehensive support services.
               </p>
-
-              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto pt-8">
-                <div className="bg-gradient-to-br from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-2xl p-6 border border-blue-400/30 transform hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">25K+</div>
-                  <div className="text-cyan-200 text-sm">Students</div>
-                </div>
-                <div className="bg-gradient-to-br from-cyan-500/30 to-indigo-500/30 backdrop-blur-sm rounded-2xl p-6 border border-cyan-400/30 transform hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">50+</div>
-                  <div className="text-cyan-200 text-sm">Universities</div>
-                </div>
-                <div className="bg-gradient-to-br from-indigo-500/30 to-blue-500/30 backdrop-blur-sm rounded-2xl p-6 border border-indigo-400/30 transform hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">95%</div>
-                  <div className="text-blue-200 text-sm">Success Rate</div>
-                </div>
-                <div className="bg-gradient-to-br from-cyan-500/30 to-blue-500/30 backdrop-blur-sm rounded-2xl p-6 border border-cyan-400/30 transform hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">100%</div>
-                  <div className="text-cyan-200 text-sm">UGC Approved</div>
-                </div>
-              </div>
             </div>
 
-            {/* Right Column - Image 2 */}
-            <div className="relative group">
-              <div className="bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 backdrop-blur-lg rounded-3xl p-6 border border-cyan-400/30 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
-                <div className="w-full h-80 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-500 rounded-2xl relative overflow-hidden shadow-2xl">
-                  <img 
-                    src="/about-campus.jpg" 
-                    alt="EDBELL Campus" 
-                    className="w-full h-full object-cover rounded-2xl transform group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/50 via-transparent to-transparent"></div>
+            {/* Right Column - Image (Takes 2 columns) */}
+            <div className="lg:col-span-2 relative mt-8 lg:mt-0">
+              <div className="w-full h-80 sm:h-96 lg:h-[500px] rounded-2xl relative overflow-hidden shadow-xl">
+                <img 
+                  src="/about-professional.jpg" 
+                  alt="EDBELL Education" 
+                  className="w-full h-full object-cover rounded-2xl"
+                />
+                {/* Text inside image at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-4 border-t border-gray-200">
+                  <p className="text-sm sm:text-base font-semibold text-gray-800 text-center">
+                    ADV. ARIF WAFY VARAMBATTA
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 text-center">
+                    (MANAGING DIRECTOR EDBELL EDUSOLUTIONS LLP)
+                  </p>
                 </div>
-              </div>
-              {/* Floating Badge */}
-              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-cyan-500 to-indigo-500 text-white rounded-xl p-3 shadow-2xl animate-bounce delay-300">
-                <Award className="h-6 w-6" />
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Bottom Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
-            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl p-6 border border-blue-400/30 text-center transform hover:scale-105 transition-all duration-300">
-              <Shield className="h-12 w-12 text-cyan-300 mx-auto mb-4" />
-              <h3 className="text-white font-bold text-xl mb-2">UGC Approved</h3>
-              <p className="text-blue-200">All programs are UGC-DEB approved</p>
+      {/* Stats Section - Same as Home Page */}
+      <section className="py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 border-b border-blue-500/20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.1),transparent_50%)]"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center items-stretch">
+            <div className="flex flex-col items-center group cursor-pointer transform hover:scale-110 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-2 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                <Shield className="h-5 w-5 text-white group-hover:animate-pulse" />
+              </div>
+              <div className="text-lg font-bold text-white group-hover:text-cyan-200 transition-colors duration-300">UGC Approved</div>
+              <div className="text-xs text-blue-200 group-hover:text-white transition-colors duration-300">Recognized Programs</div>
             </div>
-            <div className="bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 backdrop-blur-lg rounded-2xl p-6 border border-cyan-400/30 text-center transform hover:scale-105 transition-all duration-300">
-              <Target className="h-12 w-12 text-cyan-300 mx-auto mb-4" />
-              <h3 className="text-white font-bold text-xl mb-2">Career Focused</h3>
-              <p className="text-cyan-200">Career guidance and placement support</p>
+            
+            <div className="flex flex-col items-center group cursor-pointer transform hover:scale-110 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                <Users className="h-8 w-8 text-white group-hover:animate-bounce" />
+              </div>
+              <div className="text-2xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300">25,000+</div>
+              <div className="text-blue-200 group-hover:text-white transition-colors duration-300">Happy Students</div>
             </div>
-            <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 backdrop-blur-lg rounded-2xl p-6 border border-indigo-400/30 text-center transform hover:scale-105 transition-all duration-300">
-              <Zap className="h-12 w-12 text-blue-300 mx-auto mb-4" />
-              <h3 className="text-white font-bold text-xl mb-2">Fast Track</h3>
-              <p className="text-indigo-200">Flexible online programs</p>
+            
+            <div className="flex flex-col items-center group cursor-pointer transform hover:scale-110 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                <Globe className="h-8 w-8 text-white group-hover:animate-spin" />
+              </div>
+              <div className="text-2xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300">50+</div>
+              <div className="text-blue-200 group-hover:text-white transition-colors duration-300">University Partners</div>
+            </div>
+            
+            <div className="flex flex-col items-center group cursor-pointer transform hover:scale-110 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                <Award className="h-8 w-8 text-white group-hover:animate-pulse" />
+              </div>
+              <div className="text-2xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300">95%</div>
+              <div className="text-blue-200 group-hover:text-white transition-colors duration-300">Success Rate</div>
             </div>
           </div>
         </div>

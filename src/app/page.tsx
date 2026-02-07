@@ -155,89 +155,60 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50">
-      {/* Hero Section with 3D Animations */}
-      <section className="relative bg-gradient-to-br from-blue-900 via-indigo-900 to-cyan-900 min-h-[60vh] flex items-center overflow-hidden">
-        {/* 3D Animated Background Elements */}
+      {/* Hero Section with Light Blue Theme */}
+      <section className="relative bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 min-h-[85vh] flex items-center overflow-hidden py-16">
+        {/* Light Animated Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl animate-pulse transform-gpu"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-1000 transform-gpu"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400/20 rounded-full blur-3xl animate-pulse delay-500 transform-gpu"></div>
-          <div className="absolute top-10 right-1/3 w-48 h-48 bg-blue-300/10 rounded-full blur-2xl animate-bounce delay-300 transform-gpu"></div>
-          <div className="absolute bottom-10 left-1/3 w-56 h-56 bg-cyan-300/10 rounded-full blur-2xl animate-bounce delay-700 transform-gpu"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.1),transparent_50%)]"></div>
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl animate-pulse transform-gpu"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-cyan-200/30 rounded-full blur-3xl animate-pulse delay-1000 transform-gpu"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-200/20 rounded-full blur-3xl animate-pulse delay-500 transform-gpu"></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <div className="text-white">
-            <div className="inline-flex items-center bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8 border border-blue-400/30 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-              <span className="text-sm font-medium animate-pulse">🎓 Trusted by 25,000+ Students</span>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+            {/* Left Content - Takes 3 columns */}
+            <div className="lg:col-span-3 text-gray-900 text-center lg:text-left">
+              <div className="inline-flex items-center bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 mb-6 border border-blue-200 shadow-lg">
+                <span className="text-sm font-medium text-blue-900">🎓 Trusted by 25,000+ Students</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight">
+                <span className="text-gray-900">Guiding Students to the</span>
+                <span className="block text-transparent bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 bg-clip-text">
+                  Right Education Path
+                </span>
+              </h1>
+              <p className="text-base sm:text-lg text-gray-700 mb-8 leading-relaxed">
+                UGC-approved online degrees with expert guidance.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link href="/courses" className="group relative bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl overflow-hidden text-center">
+                  <span className="relative z-10">Explore Courses</span>
+                </Link>
+                <Link href="/contact" className="group border-2 border-blue-600 text-blue-600 hover:bg-white hover:border-blue-700 hover:text-blue-700 px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl backdrop-blur-sm text-center">
+                  Get Free Consultation
+                </Link>
+              </div>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-6 leading-tight transform hover:scale-105 transition-transform duration-300">
-              Guiding Students to the
-              <span className="block text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text animate-pulse">
-                Right Education Path
-              </span>
-            </h1>
-            <p className="text-lg text-blue-100 mb-8 leading-relaxed transform hover:translate-x-2 transition-transform duration-300">
-              UGC-approved online degrees with expert guidance.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/courses" className="group relative bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl overflow-hidden">
-                <span className="relative z-10">Explore Courses</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </Link>
-              <Link href="/contact" className="group border-2 border-cyan-400/50 text-cyan-400 hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl backdrop-blur-sm">
-                Get Free Consultation
-              </Link>
-            </div>
-          </div>
-          
-          {/* Right Content - Professional Image with 3D Effects */}
-          <div className="relative transform hover:scale-105 transition-all duration-500">
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:rotate-1">
-              <div className="w-full h-80 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 rounded-2xl relative overflow-hidden shadow-2xl">
+            
+            {/* Right Content - Professional Image - Takes 2 columns */}
+            <div className="lg:col-span-2 relative mt-8 lg:mt-0">
+              <div className="w-full h-80 sm:h-96 lg:h-[500px] rounded-2xl relative overflow-hidden shadow-xl">
                 {/* Professional Image */}
                 <img 
                   src="/hero-professional.jpg" 
                   alt="EDBELL Professional" 
-                  className="w-full h-full object-cover rounded-2xl transform hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover rounded-2xl"
                 />
-                
-                {/* Gradient Overlay for better text visibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 via-transparent to-transparent"></div>
-                
-                {/* 3D Floating Elements */}
-                <div className="absolute top-4 left-4 w-8 h-8 bg-white/20 rounded-full animate-bounce delay-100 backdrop-blur-sm"></div>
-                <div className="absolute top-8 right-8 w-6 h-6 bg-cyan-300/30 rounded-full animate-bounce delay-300 backdrop-blur-sm"></div>
-                <div className="absolute bottom-6 left-8 w-4 h-4 bg-blue-300/40 rounded-full animate-bounce delay-500 backdrop-blur-sm"></div>
-                
-                {/* Bottom Text Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-blue-900/90 to-transparent">
-                  <div className="text-center text-white relative z-10">
-                    <h3 className="text-2xl font-bold mb-2 transform hover:scale-105 transition-transform duration-300">Your Success Partner</h3>
-                    <p className="text-cyan-100 animate-pulse">Guiding you to excellence</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* 3D Floating Achievement Cards */}
-            <div className="absolute -top-6 -left-6 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl p-4 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:rotate-3 hover:scale-110 transition-all duration-300 cursor-pointer animate-bounce">
-              <div className="flex items-center space-x-3">
-                <Award className="h-6 w-6 animate-spin" />
-                <div>
-                  <div className="text-sm font-bold">UGC Approved</div>
-                  <div className="text-xs text-cyan-100">Quality Education</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl p-4 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:-rotate-3 hover:scale-110 transition-all duration-300 cursor-pointer animate-bounce delay-500">
-              <div className="flex items-center space-x-3">
-                <Users className="h-6 w-6 animate-pulse" />
-                <div>
-                  <div className="text-sm font-bold">25K+ Students</div>
-                  <div className="text-xs text-indigo-100">Success Stories</div>
+                {/* Text inside image at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-4 border-t border-gray-200">
+                  <p className="text-sm sm:text-base font-semibold text-gray-800 text-center">
+                    ADV. ARIF WAFY VARAMBATTA
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 text-center">
+                    (MANAGING DIRECTOR EDBELL EDUSOLUTIONS LLP)
+                  </p>
                 </div>
               </div>
             </div>
@@ -289,13 +260,7 @@ export default function Home() {
       </section>
 
       {/* Services Section with 3D Cards */}
-      <section className="py-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 relative overflow-hidden">
-        {/* 3D Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-32 h-32 bg-blue-300/20 rounded-full blur-2xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 bg-cyan-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-indigo-300/20 rounded-full blur-2xl animate-pulse delay-500"></div>
-        </div>
+      <section className="py-8 relative overflow-hidden">
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-6">
@@ -511,13 +476,33 @@ export default function Home() {
             </div>
             
             <div className="relative">
-              <div className="w-full h-96 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <Globe className="h-16 w-16 text-white" />
+              <div className="w-full h-96 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                <img 
+                  src="/campus-modern.jpg" 
+                  alt="Modern Campus - EDBELL EDUSOLUTIONS" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to placeholder if image not found
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                {/* Fallback placeholder */}
+                <div className="hidden w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-32 h-32 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Globe className="h-16 w-16 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Modern Campus</h3>
+                    <p className="text-gray-600">State-of-the-art facilities</p>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">Modern Campus</h3>
-                  <p className="text-gray-600">State-of-the-art facilities</p>
+                </div>
+                {/* Image Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent flex items-end">
+                  <div className="p-6 text-white w-full">
+                    <h3 className="text-2xl font-bold mb-2">Modern Campus</h3>
+                    <p className="text-blue-100">State-of-the-art facilities</p>
+                  </div>
                 </div>
               </div>
             </div>

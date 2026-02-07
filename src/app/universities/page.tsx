@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Newsletter from '@/components/Newsletter';
 import { 
@@ -47,114 +47,41 @@ interface University {
 export default function Universities() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUniversities();
+  }, []);
+
+  const fetchUniversities = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/universities');
+      const data = await response.json();
+      
+      if (data.success) {
+        setUniversities(data.universities);
+      } else {
+        console.error('Failed to fetch universities:', data.error);
+        setUniversities([]);
+      }
+    } catch (error) {
+      console.error('Error fetching universities:', error);
+      setUniversities([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Helper function to generate university slugs that match the [id] route
   const getUniversitySlug = (universityName: string): string => {
-    const nameToSlugMap: { [key: string]: string } = {
-      'Delhi University': 'ignou',
-      'Excellence Institute of Technology': 'lpu',
-      'National Business University': 'amity-university',
-      'Indian Institute of Liberal Arts': 'manipal-university',
-      'Modern Science University': 'chandigarh-university',
-      'Global Commerce Institute': 'ignou' // fallback to ignou for demo
-    };
-    
-    return nameToSlugMap[universityName] || 'ignou';
+    // Convert university name to URL-friendly slug
+    return universityName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   };
-
-  // Static university data for frontend-only design
-  const universities: University[] = [
-    {
-      _id: '1',
-      name: 'Delhi University',
-      url: '/universities/delhi-university',
-      accreditation: 'NAAC A++',
-      established: '1922',
-      location: 'New Delhi',
-      website: 'du.ac.in',
-      description: 'One of India\'s premier universities offering online degree programs.',
-      ranking: '#2 in India',
-      studentsCount: '50,000+',
-      coursesOffered: 45,
-      specialization: ['Arts', 'Commerce', 'Science', 'Management'],
-      rating: 4.8
-    },
-    {
-      _id: '2',
-      name: 'Excellence Institute of Technology',
-      url: '/universities/test-excellence-institute',
-      accreditation: 'NAAC A+',
-      established: '1995',
-      location: 'Mumbai',
-      website: 'ignou.ac.in',
-      description: 'Leading technical university specializing in engineering and technology.',
-      ranking: '#5 in Technology',
-      studentsCount: '25,000+',
-      coursesOffered: 32,
-      specialization: ['Engineering', 'Computer Science', 'AI & ML', 'Data Science'],
-      rating: 4.6
-    },
-    {
-      _id: '3',
-      name: 'National Business University',
-      url: '/universities/national-business',
-      accreditation: 'NAAC A++',
-      established: '1987',
-      location: 'Bangalore',
-      website: 'lpu.in',
-      description: 'Premier business school offering world-class MBA programs.',
-      ranking: '#3 in Management',
-      studentsCount: '15,000+',
-      coursesOffered: 28,
-      specialization: ['MBA', 'Finance', 'Marketing', 'HR Management'],
-      rating: 4.9
-    },
-    {
-      _id: '4',
-      name: 'Indian Institute of Liberal Arts',
-      url: '/universities/liberal-arts',
-      accreditation: 'NAAC A+',
-      established: '2001',
-      location: 'Chennai',
-      website: 'jaipur.manipal.edu',
-      description: 'Innovative liberal arts university focusing on interdisciplinary education.',
-      ranking: '#1 in Liberal Arts',
-      studentsCount: '12,000+',
-      coursesOffered: 35,
-      specialization: ['Liberal Arts', 'Psychology', 'Literature', 'Philosophy'],
-      rating: 4.7
-    },
-    {
-      _id: '5',
-      name: 'Modern Science University',
-      url: '/universities/modern-science',
-      accreditation: 'NAAC A++',
-      established: '1978',
-      location: 'Pune',
-      website: 'cuchd.in',
-      description: 'Research-focused university with innovative science programs.',
-      ranking: '#4 in Science',
-      studentsCount: '30,000+',
-      coursesOffered: 42,
-      specialization: ['Physics', 'Chemistry', 'Biology', 'Mathematics'],
-      rating: 4.5
-    },
-    {
-      _id: '6',
-      name: 'Global Commerce Institute',
-      url: '/universities/global-commerce',
-      accreditation: 'NAAC A+',
-      established: '1992',
-      location: 'Kolkata',
-      website: 'amity.edu',
-      description: 'International commerce university with strong industry ties.',
-      ranking: '#6 in Commerce',
-      studentsCount: '20,000+',
-      coursesOffered: 25,
-      specialization: ['Commerce', 'Economics', 'International Trade', 'Banking'],
-      rating: 4.4
-    }
-  ];
 
   const filters = [
     { id: 'all', name: 'All Universities', count: universities.length },
@@ -166,7 +93,7 @@ export default function Universities() {
   const filteredUniversities = universities.filter(university => {
     const matchesSearch = university.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          university.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         university.specialization?.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()));
+                         university.specializations?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesFilter = selectedFilter === 'all' || 
                          (selectedFilter === 'naac-a++' && university.accreditation === 'NAAC A++') ||
@@ -175,6 +102,18 @@ export default function Universities() {
     
     return matchesSearch && matchesFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Universities</h3>
+          <p className="text-gray-600">Please wait...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
@@ -442,12 +381,12 @@ export default function Universities() {
                         <div className="grid grid-cols-3 gap-2 mb-4">
                           <div className="text-center p-3 bg-blue-50 rounded-xl">
                             <Users className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-                            <div className="text-sm font-bold text-gray-900">{university.studentsCount}</div>
+                            <div className="text-sm font-bold text-gray-900">{university.totalStudents || university.studentsCount || 'N/A'}</div>
                             <div className="text-xs text-gray-600">Students</div>
                           </div>
                           <div className="text-center p-3 bg-cyan-50 rounded-xl">
                             <BookOpen className="h-5 w-5 text-cyan-600 mx-auto mb-1" />
-                            <div className="text-sm font-bold text-gray-900">{university.coursesOffered}+</div>
+                            <div className="text-sm font-bold text-gray-900">{university.coursesOffered || 'N/A'}</div>
                             <div className="text-xs text-gray-600">Courses</div>
                           </div>
                           <div className="text-center p-3 bg-indigo-50 rounded-xl">

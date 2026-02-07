@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Newsletter from '@/components/Newsletter';
 import { BookOpen, Clock, Users, Award, CheckCircle, Filter, Download, Phone, ExternalLink, GraduationCap, ArrowRight } from 'lucide-react';
 
@@ -28,164 +28,32 @@ interface Course {
 
 export default function CoursesClient() {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Download brochure function
-  const handleDownloadBrochure = (courseName: string) => {
-    // Create a simple PDF-like content for the brochure
-    const brochureContent = `
-EDBELL EDUSOLUTIONS LLP
-Course Brochure - ${courseName}
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
-📚 COURSE OVERVIEW
-${courseName} is a comprehensive program designed to provide students with industry-relevant skills and knowledge.
-
-🎯 KEY FEATURES
-✓ UGC-DEB Approved Program
-✓ 100% Online Learning
-✓ Flexible Study Schedule
-✓ Expert Faculty Support
-✓ Career Placement Assistance
-✓ Industry-Relevant Curriculum
-
-📞 CONTACT INFORMATION
-Phone: +91 98765 43210, +91 87654 32109
-Email: info@edbelledusolutions.com
-Website: www.edbelledusolutions.com
-
-📍 ADDRESS
-15/382, Calicut Tower
-Kozhikode Road, Wayanad
-Kerala, India
-
-🎓 WHY CHOOSE EDBELL?
-• UGC Approved Programs
-• 25,000+ Successful Students
-• 95% Success Rate
-• Comprehensive Support Services
-• Affordable Fee Structure
-
-For more information and admission details, contact us today!
-
-© 2024 EDBELL EDUSOLUTIONS LLP. All rights reserved.
-    `;
-
-    // Create and download the brochure as a text file
+  const fetchCourses = async () => {
     try {
-      const blob = new Blob([brochureContent], { type: 'text/plain' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${courseName.replace(/[^a-zA-Z0-9]/g, '_')}_Brochure.txt`;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
+      setLoading(true);
+      const response = await fetch('/api/courses');
+      const data = await response.json();
       
-      setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      }, 100);
-      
-      // Show success message without any URL references
-      setTimeout(() => {
-        alert('Brochure downloaded successfully!');
-      }, 200);
+      if (data.success) {
+        setCourses(data.courses);
+      } else {
+        console.error('Failed to fetch courses:', data.error);
+        setCourses([]);
+      }
     } catch (error) {
-      alert('Brochure downloaded successfully!');
+      console.error('Error fetching courses:', error);
+      setCourses([]);
+    } finally {
+      setLoading(false);
     }
   };
-
-  // Static course data for frontend-only design
-  const courses: Course[] = [
-    {
-      id: '1',
-      name: 'Bachelor of Arts (BA)',
-      url: '/courses/bachelor-of-arts',
-      category: 'Undergraduate',
-      duration: '3 Years',
-      fees: '₹15,000/year',
-      eligibility: '12th Pass',
-      description: 'Comprehensive liberal arts program covering literature, history, political science, and more with flexible learning options.'
-    },
-    {
-      id: '2',
-      name: 'Bachelor of Commerce (B.Com)',
-      url: '/courses/bachelor-of-commerce',
-      category: 'Undergraduate',
-      duration: '3 Years',
-      fees: '₹18,000/year',
-      eligibility: '12th Pass',
-      description: 'Business-focused program covering accounting, finance, economics, and business management fundamentals.'
-    },
-    {
-      id: '3',
-      name: 'Master of Business Administration (MBA)',
-      url: '/courses/master-of-business-administration',
-      category: 'Postgraduate',
-      duration: '2 Years',
-      fees: '₹40,000/year',
-      eligibility: 'Graduate',
-      description: 'Comprehensive management program preparing leaders for global business challenges and opportunities.'
-    },
-    {
-      id: '4',
-      name: 'Bachelor of Science (B.Sc)',
-      url: '/courses/bsc',
-      category: 'Undergraduate',
-      duration: '3 Years',
-      fees: '₹20,000/year',
-      eligibility: '12th Pass (Science)',
-      description: 'Science-focused undergraduate program with specializations in various scientific disciplines.'
-    },
-    {
-      id: '5',
-      name: 'Bachelor of Computer Applications (BCA)',
-      url: '/courses/bsc-cs',
-      category: 'Undergraduate',
-      duration: '3 Years',
-      fees: '₹25,000/year',
-      eligibility: '12th Pass',
-      description: 'Computer applications program focusing on programming, software development, and IT skills.'
-    },
-    {
-      id: '6',
-      name: 'Digital Marketing Certification',
-      url: '/courses/digital-marketing',
-      category: 'Specialized',
-      duration: '6 Months',
-      fees: '₹12,000',
-      eligibility: 'Any Graduate',
-      description: 'Professional certification in digital marketing strategies, SEO, social media, and online advertising.'
-    },
-    {
-      id: '7',
-      name: 'Master of Arts (MA)',
-      url: '/courses/master-of-arts',
-      category: 'Postgraduate',
-      duration: '2 Years',
-      fees: '₹22,000/year',
-      eligibility: 'Graduate',
-      description: 'Advanced liberal arts program with specializations in literature, history, psychology, and social sciences.'
-    },
-    {
-      id: '8',
-      name: 'Master of Commerce (M.Com)',
-      url: '/courses/master-of-commerce',
-      category: 'Postgraduate',
-      duration: '2 Years',
-      fees: '₹25,000/year',
-      eligibility: 'Graduate in Commerce',
-      description: 'Advanced commerce program focusing on accounting, finance, taxation, and business management.'
-    },
-    {
-      id: '9',
-      name: 'Data Science Certification',
-      url: '/courses/data-science',
-      category: 'Specialized',
-      duration: '8 Months',
-      fees: '₹35,000',
-      eligibility: 'Graduate (Any Stream)',
-      description: 'Comprehensive data science program covering Python, machine learning, statistics, and data visualization.'
-    }
-  ];
 
   const categories = [
     { id: 'all', name: 'All Courses' },
@@ -197,6 +65,18 @@ For more information and admission details, contact us today!
   const filteredCourses = selectedCategory === 'all' 
     ? courses 
     : courses.filter(course => course.category === selectedCategory);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Courses</h3>
+          <p className="text-gray-600">Please wait...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -322,9 +202,9 @@ For more information and admission details, contact us today!
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                {filteredCourses.map((course) => (
+                {filteredCourses.map((course, index) => (
                   <div 
-                    key={course.id} 
+                    key={course._id || course.id || `course-${index}`} 
                     className="bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 group transform hover:scale-105 hover:-translate-y-2 cursor-pointer flex flex-col"
                   >
                     {/* Header with Icon and Category */}
@@ -374,11 +254,6 @@ For more information and admission details, contact us today!
                           <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                             <span className="text-sm">View Details</span>
                             <ExternalLink className="h-4 w-4" />
-                          </button>
-                        </Link>
-                        <Link href="/contact">
-                          <button className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-110">
-                            <Phone className="h-4 w-4" />
                           </button>
                         </Link>
                       </div>
@@ -460,13 +335,6 @@ For more information and admission details, contact us today!
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
             </Link>
-            <button 
-              onClick={() => handleDownloadBrochure('General Course Information')}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 group"
-            >
-              <Download className="h-5 w-5 group-hover:animate-bounce" />
-              <span>Download Brochure</span>
-            </button>
           </div>
           <div className="mt-8 flex items-center justify-center space-x-6 text-blue-100">
             <div className="flex items-center space-x-2">

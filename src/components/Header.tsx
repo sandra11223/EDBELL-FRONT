@@ -57,8 +57,8 @@ const Header = () => {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 mobile-safe-area ${
       isScrolled 
-        ? 'bg-white/98 backdrop-blur-md border-b border-gray-200 shadow-lg' 
-        : 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm'
+        ? 'bg-white backdrop-blur-md border-b border-gray-200 shadow-lg' 
+        : 'bg-white backdrop-blur-md border-b border-gray-100 shadow-md'
     }`}>
       <div className="mobile-container">
         <div className="flex justify-between items-center h-16 lg:h-20">

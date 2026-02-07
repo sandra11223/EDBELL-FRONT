@@ -205,6 +205,21 @@ export default function AdminDashboard() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
   
+  // Hero image upload states
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [heroImagePreview, setHeroImagePreview] = useState<string>('');
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState('');
+  const [heroImageType, setHeroImageType] = useState<'home' | 'about'>('home');
+  const [aboutHeroFile, setAboutHeroFile] = useState<File | null>(null);
+  const [aboutHeroPreview, setAboutHeroPreview] = useState<string>('');
+  const [uploadingAbout, setUploadingAbout] = useState(false);
+  const [aboutUploadMessage, setAboutUploadMessage] = useState('');
+  const [campusImageFile, setCampusImageFile] = useState<File | null>(null);
+  const [campusImagePreview, setCampusImagePreview] = useState<string>('');
+  const [uploadingCampus, setUploadingCampus] = useState(false);
+  const [campusUploadMessage, setCampusUploadMessage] = useState('');
+  
   // Analytics state
   const [analyticsData, setAnalyticsData] = useState({
     totalVisitors: 0,
@@ -222,6 +237,7 @@ export default function AdminDashboard() {
   const navigationItems = [
     { id: 'contacts', name: 'Contact Management', icon: <MessageCircle className="h-5 w-5" />, description: 'Manage inquiries and messages' },
     { id: 'subscribers', name: 'Newsletter Subscribers', icon: <Mail className="h-5 w-5" />, description: 'Manage newsletter subscriptions' },
+    { id: 'hero-images', name: 'Hero Images', icon: <Award className="h-5 w-5" />, description: 'Manage hero section images' },
     { id: 'blogs', name: 'Blog Management', icon: <FileText className="h-5 w-5" />, description: 'Create and manage blog posts' },
     { id: 'gallery', name: 'Gallery Management', icon: <Award className="h-5 w-5" />, description: 'Manage photo gallery' },
     { id: 'add-course', name: 'Add Course', icon: <BookOpen className="h-5 w-5" />, description: 'Create and manage courses' },
@@ -2375,10 +2391,11 @@ export default function AdminDashboard() {
                     })
                     .catch(console.error);
                 }}
+                defaultValue="30"
                 className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
+                <option value="30">Last 30 days</option>
                 <option value="90">Last 90 days</option>
               </select>
             </div>
@@ -2602,30 +2619,567 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const renderSettingsSection = () => (
-    <div className="bg-white rounded-lg shadow-sm border">
-      <div className="p-6 border-b">
-        <h2 className="text-lg font-semibold text-gray-900">System Settings</h2>
-        <p className="text-gray-600">Configure system preferences and settings</p>
+  const handleHeroImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setHeroImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeroImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAboutHeroSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAboutHeroFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAboutHeroPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleHeroImageUpload = async () => {
+    if (!heroImageFile) {
+      setUploadMessage('Please select an image first');
+      return;
+    }
+
+    setUploadingHero(true);
+    setUploadMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', heroImageFile);
+
+      const response = await fetch('/api/upload-hero', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUploadMessage('✓ Home hero image uploaded successfully! Refresh the home page to see changes.');
+        setHeroImageFile(null);
+        setHeroImagePreview('');
+        const fileInput = document.getElementById('hero-image-input') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      } else {
+        setUploadMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setUploadMessage('Failed to upload image. Please try again.');
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingHero(false);
+    }
+  };
+
+  const handleAboutHeroUpload = async () => {
+    if (!aboutHeroFile) {
+      setAboutUploadMessage('Please select an image first');
+      return;
+    }
+
+    setUploadingAbout(true);
+    setAboutUploadMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', aboutHeroFile);
+
+      const response = await fetch('/api/upload-about-hero', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setAboutUploadMessage('✓ About hero image uploaded successfully! Refresh the about page to see changes.');
+        setAboutHeroFile(null);
+        setAboutHeroPreview('');
+        const fileInput = document.getElementById('about-hero-input') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      } else {
+        setAboutUploadMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setAboutUploadMessage('Failed to upload image. Please try again.');
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingAbout(false);
+    }
+  };
+
+  const handleCampusImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCampusImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCampusImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCampusImageUpload = async () => {
+    if (!campusImageFile) {
+      setCampusUploadMessage('Please select an image first');
+      return;
+    }
+
+    setUploadingCampus(true);
+    setCampusUploadMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', campusImageFile);
+
+      const response = await fetch('/api/upload-campus', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCampusUploadMessage('✓ Campus image uploaded successfully! Refresh the home page to see changes.');
+        setCampusImageFile(null);
+        setCampusImagePreview('');
+        const fileInput = document.getElementById('campus-image-input') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      } else {
+        setCampusUploadMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setCampusUploadMessage('Failed to upload image. Please try again.');
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingCampus(false);
+    }
+  };
+
+  const renderHeroImagesSection = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          <h2 className="text-2xl font-bold text-gray-900">Hero Images Management</h2>
+          <p className="text-gray-600 mt-1">Upload and manage hero section images for Home and About pages</p>
+        </div>
       </div>
-      <div className="p-6">
-        <div className="space-y-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-2">Database Status</h3>
-            <p className="text-green-600 text-sm">✓ MongoDB Connected</p>
+
+      {/* Home Page Hero Image */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-cyan-50 to-blue-50">
+          <div className="flex items-center space-x-3">
+            <Home className="h-6 w-6 text-blue-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Home Page Hero Image</h3>
+              <p className="text-sm text-gray-600">Professional image displayed on the home page hero section</p>
+            </div>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-2">Email Configuration</h3>
-            <p className="text-yellow-600 text-sm">⚠ Email notifications not configured</p>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-2">Backup Status</h3>
-            <p className="text-gray-600 text-sm">Last backup: Not configured</p>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Current Image */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Current Image</h4>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <img 
+                  src="/hero-professional.jpg" 
+                  alt="Current Home Hero" 
+                  className="w-full h-64 object-cover rounded-lg border-2 border-gray-200"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                  }}
+                />
+                <p className="text-xs text-gray-500 mt-2">Path: /public/hero-professional.jpg</p>
+              </div>
+            </div>
+
+            {/* Upload New */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Upload New Image</h4>
+              <div className="space-y-4">
+                <div>
+                  <input
+                    id="hero-image-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeroImageSelect}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Recommended: 800x600px or larger, JPG/PNG</p>
+                </div>
+
+                {heroImagePreview && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                    <img 
+                      src={heroImagePreview} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover rounded-lg border-2 border-blue-300"
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={handleHeroImageUpload}
+                  disabled={!heroImageFile || uploadingHero}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
+                    !heroImageFile || uploadingHero
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {uploadingHero ? 'Uploading...' : 'Upload Home Hero Image'}
+                </button>
+
+                {uploadMessage && (
+                  <div className={`p-3 rounded-lg text-sm ${
+                    uploadMessage.includes('✓') 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {uploadMessage}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* About Page Hero Image */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
+          <div className="flex items-center space-x-3">
+            <Info className="h-6 w-6 text-indigo-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">About Page Hero Image</h3>
+              <p className="text-sm text-gray-600">Professional image displayed on the about page hero section</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Current Image */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Current Image</h4>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <img 
+                  src="/about-professional.jpg" 
+                  alt="Current About Hero" 
+                  className="w-full h-64 object-cover rounded-lg border-2 border-gray-200"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                  }}
+                />
+                <p className="text-xs text-gray-500 mt-2">Path: /public/about-professional.jpg</p>
+              </div>
+            </div>
+
+            {/* Upload New */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Upload New Image</h4>
+              <div className="space-y-4">
+                <div>
+                  <input
+                    id="about-hero-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAboutHeroSelect}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Recommended: 800x600px or larger, JPG/PNG</p>
+                </div>
+
+                {aboutHeroPreview && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                    <img 
+                      src={aboutHeroPreview} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover rounded-lg border-2 border-indigo-300"
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={handleAboutHeroUpload}
+                  disabled={!aboutHeroFile || uploadingAbout}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
+                    !aboutHeroFile || uploadingAbout
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  }`}
+                >
+                  {uploadingAbout ? 'Uploading...' : 'Upload About Hero Image'}
+                </button>
+
+                {aboutUploadMessage && (
+                  <div className={`p-3 rounded-lg text-sm ${
+                    aboutUploadMessage.includes('✓') 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {aboutUploadMessage}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Campus Image Section */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6 border-b bg-gradient-to-r from-green-50 to-teal-50">
+          <div className="flex items-center space-x-3">
+            <Globe className="h-6 w-6 text-green-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Campus Image (Home Page)</h3>
+              <p className="text-sm text-gray-600">Modern Campus - State-of-the-art facilities section image</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Current Image */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Current Image</h4>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <img 
+                  src="/campus-modern.jpg" 
+                  alt="Current Campus" 
+                  className="w-full h-64 object-cover rounded-lg border-2 border-gray-200"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                  }}
+                />
+                <p className="text-xs text-gray-500 mt-2">Path: /public/campus-modern.jpg</p>
+              </div>
+            </div>
+
+            {/* Upload New */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Upload New Image</h4>
+              <div className="space-y-4">
+                <div>
+                  <input
+                    id="campus-image-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCampusImageSelect}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-600 file:text-white hover:file:bg-green-700 cursor-pointer"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Recommended: 800x600px or larger, JPG/PNG</p>
+                </div>
+
+                {campusImagePreview && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                    <img 
+                      src={campusImagePreview} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover rounded-lg border-2 border-green-300"
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={handleCampusImageUpload}
+                  disabled={!campusImageFile || uploadingCampus}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
+                    !campusImageFile || uploadingCampus
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  {uploadingCampus ? 'Uploading...' : 'Upload Campus Image'}
+                </button>
+
+                {campusUploadMessage && (
+                  <div className={`p-3 rounded-lg text-sm ${
+                    campusUploadMessage.includes('✓') 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {campusUploadMessage}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h4 className="font-semibold text-yellow-900 mb-3 flex items-center">
+          <Award className="h-5 w-5 mr-2" />
+          Quick Instructions
+        </h4>
+        <ul className="text-sm text-yellow-800 space-y-2">
+          <li className="flex items-start">
+            <span className="mr-2">1.</span>
+            <span>Select an image file from your computer (JPG, PNG, etc.)</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">2.</span>
+            <span>Preview the image to ensure it looks good</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">3.</span>
+            <span>Click the upload button to apply the image</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">4.</span>
+            <span>Refresh the respective page (Ctrl + Shift + R) to see changes</span>
+          </li>
+        </ul>
+      </div>
     </div>
   );
+
+  const renderSettingsSection = () => {
+    return (
+      <div className="space-y-6">
+        {/* Hero Image Upload Section */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+            <h2 className="text-lg font-semibold text-gray-900">Hero Image Upload</h2>
+            <p className="text-gray-600">Upload the professional image for the home page hero section</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {/* Current Hero Image Preview */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Current Hero Image</h3>
+                <div className="w-full max-w-md mx-auto">
+                  <img 
+                    src="/hero-professional.jpg" 
+                    alt="Current Hero" 
+                    className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Upload New Image */}
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Upload New Hero Image</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Image
+                    </label>
+                    <input
+                      id="hero-image-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleHeroImageSelect}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Recommended: Professional photo, JPG/PNG format, at least 800x600px
+                    </p>
+                  </div>
+
+                  {/* Image Preview */}
+                  {heroImagePreview && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Preview
+                      </label>
+                      <div className="w-full max-w-md mx-auto">
+                        <img 
+                          src={heroImagePreview} 
+                          alt="Preview" 
+                          className="w-full h-48 object-cover rounded-lg border-2 border-blue-300"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Upload Button */}
+                  <button
+                    onClick={handleHeroImageUpload}
+                    disabled={!heroImageFile || uploadingHero}
+                    className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
+                      !heroImageFile || uploadingHero
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    {uploadingHero ? 'Uploading...' : 'Upload Hero Image'}
+                  </button>
+
+                  {/* Upload Message */}
+                  {uploadMessage && (
+                    <div className={`p-3 rounded-lg text-sm ${
+                      uploadMessage.includes('✓') 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {uploadMessage}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h4 className="font-semibold text-yellow-900 mb-2">📝 Instructions</h4>
+                <ul className="text-sm text-yellow-800 space-y-1 list-disc list-inside">
+                  <li>Select a professional image from your computer</li>
+                  <li>Preview the image before uploading</li>
+                  <li>Click "Upload Hero Image" to apply</li>
+                  <li>Refresh the home page (Ctrl + Shift + R) to see changes</li>
+                  <li>The image will replace the current hero section image</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* System Settings */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="p-6 border-b">
+            <h2 className="text-lg font-semibold text-gray-900">System Settings</h2>
+            <p className="text-gray-600">Configure system preferences and settings</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Database Status</h3>
+                <p className="text-green-600 text-sm">✓ MongoDB Connected</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Email Configuration</h3>
+                <p className="text-yellow-600 text-sm">⚠ Email notifications not configured</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Backup Status</h3>
+                <p className="text-gray-600 text-sm">Last backup: Not configured</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderWebsiteSection = () => (
     <div className="space-y-8">
@@ -3864,6 +4418,7 @@ export default function AdminDashboard() {
           <div className="flex-1 p-6 overflow-auto">
             {activeSection === 'contacts' && renderContactsSection()}
             {activeSection === 'subscribers' && renderSubscribersSection()}
+            {activeSection === 'hero-images' && renderHeroImagesSection()}
             {activeSection === 'blogs' && renderBlogsSection()}
             {activeSection === 'gallery' && renderGallerySection()}
             {activeSection === 'add-course' && renderAddCourseSection()}
